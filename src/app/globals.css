@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 240 248 255;
+  --surface: 255 255 255;
+  --surface-2: 224 242 254;
+  --ink: 55 65 81;
+  --muted: 107 114 128;
+  --line: 229 231 235;
+  --warm: 181 112 26; /* ochre */
+  --cool: 47 93 138; /* slate blue */
+  --bridge: 47 125 92; /* pine green */
+}
+
+.dark {
+  --bg: 15 23 42;
+  --surface: 30 41 59;
+  --surface-2: 45 55 72;
+  --ink: 209 213 219;
+  --muted: 161 161 170;
+  --line: 75 85 99;
+  --warm: 221 158 78;
+  --cool: 111 160 204;
+  --bridge: 112 191 143;
+}
+
+* {
+  border-color: rgb(var(--line));
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--ink));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Focus visibility floor */
+:focus-visible {
+  outline: 2px solid rgb(var(--cool));
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Section reveal on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Small caps mono label used as eyebrows */
+.eyebrow {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
