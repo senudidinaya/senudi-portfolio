@@ -2,6 +2,10 @@ import type { Project, SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
 import { Reveal } from "./Reveal";
 
+// Curated display order for the flagship timeline. Any non-foundation project
+// whose title isn't listed here still renders — it's just appended after the
+// known ones — so a title typed slightly differently in the admin panel never
+// silently disappears.
 const flagshipOrder = [
   "Sales Pitstop",
   "Cultivator Intention Analyzer",
@@ -9,7 +13,7 @@ const flagshipOrder = [
   "StudyMate",
 ];
 
-const flagshipDots = ["bg-bridge", "bg-bridge", "bg-cool", "bg-cool"];
+const dotPalette = ["bg-bridge", "bg-bridge", "bg-cool", "bg-warm"];
 
 function TimelineItem({
   dotClass,
@@ -141,9 +145,15 @@ export function Projects({
   publication: SiteContent["publication"];
 }) {
   const foundations = projects.filter((p) => p.kind.includes(".NET foundation"));
-  const flagships = flagshipOrder
-    .map((title) => projects.find((p) => p.title === title))
-    .filter((p): p is Project => Boolean(p));
+  // Every non-foundation project is a flagship. Sort by the curated order,
+  // with unlisted titles falling to the end (stable, so they keep data order).
+  const rank = (title: string) => {
+    const i = flagshipOrder.indexOf(title);
+    return i === -1 ? flagshipOrder.length : i;
+  };
+  const flagships = projects
+    .filter((p) => !p.kind.includes(".NET foundation"))
+    .sort((a, b) => rank(a.title) - rank(b.title));
 
   return (
     <section id="work" className="px-5 py-24 sm:px-8 sm:py-32">
@@ -166,7 +176,7 @@ export function Projects({
           {flagships.map((project, i) => (
             <TimelineItem
               key={project.title}
-              dotClass={flagshipDots[i] ?? "bg-cool"}
+              dotClass={dotPalette[i % dotPalette.length]}
               delay={(i + 1) * 80}
             >
               <ProjectCard project={project} />
