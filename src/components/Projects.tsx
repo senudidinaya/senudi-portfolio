@@ -2,17 +2,9 @@ import type { Project, SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
 import { Reveal } from "./Reveal";
 
-// Curated display order for the flagship timeline. Any non-foundation project
-// whose title isn't listed here still renders — it's just appended after the
-// known ones — so a title typed slightly differently in the admin panel never
-// silently disappears.
-const flagshipOrder = [
-  "Sales Pitstop",
-  "Cultivator Intention Analyzer",
-  "Chest X-Ray Pneumonia Screening — EfficientNet-B0",
-  "StudyMate",
-];
-
+// Flagship cards render in the order they appear in the content data, which is
+// controlled entirely from the admin panel (the ↑/↓ reorder buttons). No code
+// change is needed to add, remove, or reorder a project.
 const dotPalette = ["bg-bridge", "bg-bridge", "bg-cool", "bg-warm"];
 
 function TimelineItem({
@@ -145,15 +137,8 @@ export function Projects({
   publication: SiteContent["publication"];
 }) {
   const foundations = projects.filter((p) => p.kind.includes(".NET foundation"));
-  // Every non-foundation project is a flagship. Sort by the curated order,
-  // with unlisted titles falling to the end (stable, so they keep data order).
-  const rank = (title: string) => {
-    const i = flagshipOrder.indexOf(title);
-    return i === -1 ? flagshipOrder.length : i;
-  };
-  const flagships = projects
-    .filter((p) => !p.kind.includes(".NET foundation"))
-    .sort((a, b) => rank(a.title) - rank(b.title));
+  // Every non-foundation project is a flagship, shown in the admin-defined order.
+  const flagships = projects.filter((p) => !p.kind.includes(".NET foundation"));
 
   return (
     <section id="work" className="px-5 py-24 sm:px-8 sm:py-32">
