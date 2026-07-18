@@ -135,6 +135,20 @@ export const defaultContent: SiteContent = {
       metric: { value: "97.8%", label: "test accuracy" },
     },
     {
+      title: "Chest X-Ray Pneumonia Screening — EfficientNet-B0",
+      kind: "Deep-learning module · CNN architecture benchmark",
+      timeframe: "2025",
+      summary:
+        "A transfer-learning pipeline that screens chest X-rays for pneumonia by fine-tuning EfficientNet-B0 — my contribution to a team study benchmarking CNN and Vision-Transformer architectures on the same clinical dataset.",
+      highlights: [
+        "Fine-tuned an ImageNet-pretrained EfficientNet-B0 (timm / PyTorch) with AdamW, cosine-annealing LR, mixed-precision training, gradient clipping and image augmentation.",
+        "Selected the model by validation ROC-AUC with early stopping, reaching 0.955 test ROC-AUC at ~99% sensitivity — deliberately tuned to catch nearly every pneumonia case, the priority in screening.",
+        "Built a reproducible, config-driven codebase (seeded runs; separate data / model / train / eval modules) reporting sensitivity, specificity, F1 and confusion-matrix / ROC-curve diagnostics.",
+      ],
+      stack: ["Python", "PyTorch", "timm", "torchvision", "scikit-learn", "NumPy"],
+      metric: { value: "0.955", label: "test ROC-AUC · pneumonia screening" },
+    },
+    {
       title: "Sales Pitstop",
       kind: "WSO2 · internal app for the global sales team",
       timeframe: "Jan – Jun 2025",

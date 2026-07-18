@@ -5,10 +5,11 @@ import { Reveal } from "./Reveal";
 const flagshipOrder = [
   "Sales Pitstop",
   "Cultivator Intention Analyzer",
+  "Chest X-Ray Pneumonia Screening — EfficientNet-B0",
   "StudyMate",
 ];
 
-const flagshipDots = ["bg-bridge", "bg-bridge", "bg-cool"];
+const flagshipDots = ["bg-bridge", "bg-bridge", "bg-cool", "bg-cool"];
 
 function TimelineItem({
   dotClass,
