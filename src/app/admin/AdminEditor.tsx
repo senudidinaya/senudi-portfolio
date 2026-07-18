@@ -16,7 +16,7 @@ function move<T>(arr: T[], i: number, dir: -1 | 1): T[] {
 
 // ── Field primitives ──────────────────────────────────────────
 const inputClass =
-  "w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink transition-colors focus:border-cool focus:outline-none";
+  "w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[0.95rem] text-ink transition-colors focus:border-cool focus:outline-none";
 
 function Text({
   label,
@@ -31,7 +31,7 @@ function Text({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-muted">{label}</span>
+      <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>
       <input
         value={value}
         placeholder={placeholder}
@@ -55,7 +55,7 @@ function Area({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-muted">{label}</span>
+      <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>
       <textarea
         value={value}
         rows={rows}
@@ -101,7 +101,7 @@ function StringList({
 }) {
   return (
     <div>
-      <span className="mb-1.5 block text-xs font-medium text-muted">{label}</span>
+      <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>
       <div className="space-y-2">
         {items.map((item, i) => (
           <div key={i} className="flex items-start gap-2">
@@ -153,11 +153,11 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-line bg-surface p-6">
-      <h2 className="font-serif text-xl font-light tracking-tight text-ink">
+    <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7">
+      <h2 className="border-b border-line pb-3 font-serif text-2xl font-normal tracking-tight text-ink">
         {title}
       </h2>
-      <div className="mt-5 space-y-4">{children}</div>
+      <div className="mt-6 space-y-5">{children}</div>
     </section>
   );
 }
@@ -305,7 +305,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
 
         <Section title="Skills">
           {(["business", "shared", "technical"] as const).map((key) => (
-            <div key={key} className="rounded-xl bg-bg p-4">
+            <div key={key} className="rounded-xl border border-line bg-bg p-5">
               <Text
                 label={`${key} — heading`}
                 value={data.skills[key].label}
@@ -368,7 +368,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
         <Section title="Education">
           <div className="space-y-3">
             {data.education.map((e, i) => (
-              <div key={i} className="rounded-xl bg-bg p-4">
+              <div key={i} className="rounded-xl border border-line bg-bg p-5">
                 <div className="mb-2 flex justify-end gap-1">
                   <RowButton onClick={() => update((d) => { d.education = move(d.education, i, -1); })}>↑</RowButton>
                   <RowButton onClick={() => update((d) => { d.education = move(d.education, i, 1); })}>↓</RowButton>
@@ -416,9 +416,9 @@ function ProjectCard({
   onRemove: () => void;
 }) {
   return (
-    <div className="rounded-xl bg-bg p-4">
+    <div className="rounded-xl border border-line bg-bg p-5">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-medium text-muted">
+        <span className="text-sm font-semibold text-ink">
           {project.title || "Untitled project"}
         </span>
         <div className="flex gap-1">
@@ -442,7 +442,7 @@ function ProjectCard({
         {project.metric ? (
           <div className="rounded-lg border border-line p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-medium text-muted">Metric</span>
+              <span className="text-sm font-semibold text-ink">Metric</span>
               <RowButton danger onClick={() => onChange((p) => { delete p.metric; })}>Remove</RowButton>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -458,7 +458,7 @@ function ProjectCard({
         {project.link ? (
           <div className="rounded-lg border border-line p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-medium text-muted">Link</span>
+              <span className="text-sm font-semibold text-ink">Link</span>
               <RowButton danger onClick={() => onChange((p) => { delete p.link; })}>Remove</RowButton>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
