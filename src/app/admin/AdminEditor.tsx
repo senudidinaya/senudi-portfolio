@@ -145,15 +145,33 @@ function StringList({
   );
 }
 
+// Sections shown in the sticky menu bar; the id matches each Section's anchor.
+const SECTIONS = [
+  { id: "profile", label: "Profile" },
+  { id: "metrics", label: "Metrics" },
+  { id: "about", label: "About" },
+  { id: "skills", label: "Skills" },
+  { id: "projects", label: "Projects" },
+  { id: "publication", label: "Publication" },
+  { id: "education", label: "Education" },
+  { id: "additional", label: "Additional" },
+  { id: "contact", label: "Contact" },
+];
+
 function Section({
+  id,
   title,
   children,
 }: {
+  id?: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-line bg-surface p-6 sm:p-7">
+    <section
+      id={id}
+      className="scroll-mt-32 rounded-2xl border border-line bg-surface p-6 sm:p-7"
+    >
       <h2 className="border-b border-line pb-3 font-serif text-2xl font-normal tracking-tight text-ink">
         {title}
       </h2>
@@ -250,10 +268,23 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
             </button>
           </div>
         </div>
+        <nav className="border-t border-line">
+          <div className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-5 py-2">
+            {SECTIONS.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="flex-none rounded-full px-3 py-1 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-muted transition-colors hover:bg-surface hover:text-ink"
+              >
+                {s.label}
+              </a>
+            ))}
+          </div>
+        </nav>
       </header>
 
       <div className="mx-auto max-w-3xl space-y-6 px-5 py-8">
-        <Section title="Profile">
+        <Section id="profile" title="Profile">
           <div className="grid gap-4 sm:grid-cols-2">
             <Text label="Name" value={p.name} onChange={(v) => update((d) => { d.profile.name = v; })} />
             <Text label="Headline" value={p.headline} onChange={(v) => update((d) => { d.profile.headline = v; })} />
@@ -273,7 +304,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           </div>
         </Section>
 
-        <Section title="Metrics">
+        <Section id="metrics" title="Metrics">
           <div className="space-y-3">
             {data.metrics.map((m, i) => (
               <div key={i} className="flex items-end gap-2">
@@ -294,7 +325,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           <RowButton onClick={() => update((d) => { d.metrics.push({ value: "", label: "" }); })}>+ Add metric</RowButton>
         </Section>
 
-        <Section title="About">
+        <Section id="about" title="About">
           <StringList
             label="Paragraphs"
             items={data.about.paragraphs}
@@ -303,7 +334,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           />
         </Section>
 
-        <Section title="Skills">
+        <Section id="skills" title="Skills">
           {(["business", "shared", "technical"] as const).map((key) => (
             <div key={key} className="rounded-xl border border-line bg-bg p-5">
               <Text
@@ -322,7 +353,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           ))}
         </Section>
 
-        <Section title="Projects">
+        <Section id="projects" title="Projects">
           <div className="space-y-4">
             {data.projects.map((proj, i) => (
               <ProjectCard
@@ -352,7 +383,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           </RowButton>
         </Section>
 
-        <Section title="Publication">
+        <Section id="publication" title="Publication">
           <Area label="Title" value={data.publication.title} onChange={(v) => update((d) => { d.publication.title = v; })} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Text label="Role" value={data.publication.role} onChange={(v) => update((d) => { d.publication.role = v; })} />
@@ -365,7 +396,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           </div>
         </Section>
 
-        <Section title="Education">
+        <Section id="education" title="Education">
           <div className="space-y-3">
             {data.education.map((e, i) => (
               <div key={i} className="rounded-xl border border-line bg-bg p-5">
@@ -387,12 +418,12 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           </RowButton>
         </Section>
 
-        <Section title="Additional">
+        <Section id="additional" title="Additional">
           <StringList label="Languages" items={data.additional.languages} onChange={(next) => update((d) => { d.additional.languages = next; })} />
           <StringList label="Beyond work" items={data.additional.activities} onChange={(next) => update((d) => { d.additional.activities = next; })} />
         </Section>
 
-        <Section title="Contact form (EmailJS)">
+        <Section id="contact" title="Contact form (EmailJS)">
           <div className="grid gap-4 sm:grid-cols-3">
             <Text label="Service ID" value={data.contact.emailjs.serviceId} onChange={(v) => update((d) => { d.contact.emailjs.serviceId = v; })} />
             <Text label="Template ID" value={data.contact.emailjs.templateId} onChange={(v) => update((d) => { d.contact.emailjs.templateId = v; })} />
