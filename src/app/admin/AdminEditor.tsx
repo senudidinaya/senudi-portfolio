@@ -255,7 +255,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
   const p = data.profile;
 
   return (
-    <div className="admin-theme min-h-screen bg-gradient-to-b from-surface2/60 to-bg pb-24">
+    <div className="admin-theme min-h-screen pb-24">
       {/* Top bar */}
       <header className="sticky top-0 z-10 border-b border-cool/20 bg-surface/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
@@ -289,7 +289,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
               type="button"
               onClick={save}
               disabled={status === "saving"}
-              className="rounded-full bg-bridge px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-bridge/30 transition-opacity hover:opacity-90 disabled:opacity-60"
+              className="rounded-full bg-bridge px-4 py-1.5 text-xs font-semibold text-bg shadow-sm shadow-bridge/30 transition-opacity hover:opacity-90 disabled:opacity-60"
             >
               {status === "saving" ? "Saving…" : "Save"}
             </button>

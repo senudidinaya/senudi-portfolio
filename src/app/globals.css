@@ -27,30 +27,33 @@
 }
 
 /* Admin dashboard palette — scoped to the /admin editor only, so the public
-   site keeps its own colours. A clean slate neutral base with a blue accent,
-   plus semantic green (success) and red (danger/error). */
-.admin-theme {
-  --bg: 241 245 249; /* slate-100 — page */
-  --surface: 255 255 255; /* white — cards */
-  --surface-2: 248 250 252; /* slate-50 */
-  --ink: 15 23 42; /* slate-900 — strong text */
-  --muted: 100 116 139; /* slate-500 */
-  --line: 226 232 240; /* slate-200 */
-  --cool: 37 99 235; /* blue-600 — accent / focus / links */
-  --bridge: 22 163 74; /* green-600 — success */
-  --warm: 220 38 38; /* red-600 — danger / error */
+   site keeps its own colours. A warm editorial scheme built from Space Cadet
+   navy, Slate Gray, Tan, Coffee and Caput Mortuum. The same values are used in
+   light and dark so the admin looks consistent regardless of the theme toggle. */
+.admin-theme,
+.dark .admin-theme {
+  --bg: 24 34 54; /* deep navy — page */
+  --surface: 37 52 79; /* Space Cadet — cards */
+  --surface-2: 47 64 94; /* lighter navy — inputs */
+  --ink: 236 224 205; /* warm cream — text */
+  --muted: 143 164 185; /* lightened Slate Gray — muted text */
+  --line: 58 74 99; /* subtle navy border */
+  --cool: 213 184 147; /* Tan — accent / focus / links / primary */
+  --bridge: 213 184 147; /* Tan — success / Save */
+  --warm: 202 107 111; /* lightened Caput Mortuum — danger / error */
 }
 
-.dark .admin-theme {
-  --bg: 15 23 42; /* slate-900 — page */
-  --surface: 30 41 59; /* slate-800 — cards */
-  --surface-2: 51 65 85; /* slate-700 */
-  --ink: 241 245 249; /* slate-100 — strong text */
-  --muted: 148 163 184; /* slate-400 */
-  --line: 51 65 85; /* slate-700 */
-  --cool: 96 165 250; /* blue-400 */
-  --bridge: 74 222 128; /* green-400 */
-  --warm: 248 113 113; /* red-400 */
+/* Soft gradient backdrop evoking the reference image (navy base with slate,
+   tan and coffee glows), fixed so it sits behind the scrolling form. Cards stay
+   fully opaque on top, so text remains crisp. */
+.admin-theme {
+  background-color: rgb(var(--bg));
+  background-image:
+    radial-gradient(1100px 620px at 12% -8%, rgba(97, 120, 145, 0.38), transparent 60%),
+    radial-gradient(880px 520px at 102% 2%, rgba(213, 184, 147, 0.16), transparent 55%),
+    radial-gradient(1000px 720px at 50% 112%, rgba(111, 77, 56, 0.26), transparent 62%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 * {
