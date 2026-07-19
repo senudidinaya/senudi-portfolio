@@ -33,7 +33,7 @@ export function LoginForm() {
   }
 
   return (
-    <main className="mx-auto grid min-h-screen max-w-sm place-items-center px-6">
+    <main className="admin-theme mx-auto grid min-h-screen max-w-sm place-items-center bg-bg px-6">
       <form
         onSubmit={onSubmit}
         className="w-full rounded-2xl border border-line bg-surface p-8 shadow-lg shadow-ink/5"
