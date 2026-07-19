@@ -234,7 +234,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
     <div className="min-h-screen bg-bg pb-24">
       {/* Top bar */}
       <header className="sticky top-0 z-10 border-b border-line bg-bg/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-3">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
           <span className="font-mono text-sm text-ink">Site editor</span>
           <div className="flex items-center gap-2">
             {status === "saved" && (
@@ -269,7 +269,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           </div>
         </div>
         <nav className="border-t border-line">
-          <div className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-5 py-2">
+          <div className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-5 py-2">
             {SECTIONS.map((s) => (
               <a
                 key={s.id}
@@ -283,7 +283,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
         </nav>
       </header>
 
-      <div className="mx-auto max-w-3xl space-y-6 px-5 py-8">
+      <div className="mx-auto max-w-5xl space-y-6 px-5 py-8">
         <Section id="profile" title="Profile">
           <div className="grid gap-4 sm:grid-cols-2">
             <Text label="Name" value={p.name} onChange={(v) => update((d) => { d.profile.name = v; })} />
