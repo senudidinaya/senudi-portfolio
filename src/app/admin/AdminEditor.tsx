@@ -16,7 +16,7 @@ function move<T>(arr: T[], i: number, dir: -1 | 1): T[] {
 
 // ── Field primitives ──────────────────────────────────────────
 const inputClass =
-  "w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[0.95rem] text-ink transition-colors focus:border-cool focus:outline-none";
+  "w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[0.95rem] text-ink transition-colors focus:border-cool focus:outline-none focus:ring-2 focus:ring-cool/20";
 
 function Text({
   label,
@@ -170,9 +170,10 @@ function Section({
   return (
     <section
       id={id}
-      className="scroll-mt-32 rounded-2xl border border-line bg-surface p-6 sm:p-7"
+      className="scroll-mt-32 rounded-2xl border border-line bg-surface p-6 shadow-sm shadow-cool/5 sm:p-7"
     >
-      <h2 className="border-b border-line pb-3 font-serif text-2xl font-normal tracking-tight text-ink">
+      <h2 className="flex items-center gap-3 border-b border-line pb-3 font-serif text-2xl font-normal tracking-tight text-ink">
+        <span aria-hidden="true" className="h-6 w-1.5 rounded-full bg-cool" />
         {title}
       </h2>
       <div className="mt-6 space-y-5">{children}</div>
@@ -231,11 +232,14 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
   const p = data.profile;
 
   return (
-    <div className="min-h-screen bg-bg pb-24">
+    <div className="admin-theme min-h-screen bg-gradient-to-b from-surface2/60 to-bg pb-24">
       {/* Top bar */}
-      <header className="sticky top-0 z-10 border-b border-line bg-bg/90 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-cool/20 bg-surface/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
-          <span className="font-mono text-sm text-ink">Site editor</span>
+          <span className="flex items-center gap-2 font-mono text-sm font-medium text-ink">
+            <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-cool" />
+            Site editor
+          </span>
           <div className="flex items-center gap-2">
             {status === "saved" && (
               <span className="text-xs text-bridge">Saved ✓</span>
@@ -247,14 +251,14 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="rounded-full border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:text-ink"
+              className="rounded-full border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:border-cool/40 hover:text-cool"
             >
               View site ↗
             </a>
             <button
               type="button"
               onClick={logout}
-              className="rounded-full border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:text-ink"
+              className="rounded-full border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:border-cool/40 hover:text-cool"
             >
               Log out
             </button>
@@ -262,7 +266,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
               type="button"
               onClick={save}
               disabled={status === "saving"}
-              className="rounded-full bg-ink px-4 py-1.5 text-xs font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-60"
+              className="rounded-full bg-bridge px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-bridge/30 transition-opacity hover:opacity-90 disabled:opacity-60"
             >
               {status === "saving" ? "Saving…" : "Save"}
             </button>
@@ -274,7 +278,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
               <a
                 key={s.id}
                 href={`#${s.id}`}
-                className="flex-none rounded-full px-3 py-1 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-muted transition-colors hover:bg-surface hover:text-ink"
+                className="flex-none rounded-full px-3 py-1 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-muted transition-colors hover:bg-cool/10 hover:text-cool"
               >
                 {s.label}
               </a>
@@ -336,7 +340,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
 
         <Section id="skills" title="Skills">
           {(["business", "shared", "technical"] as const).map((key) => (
-            <div key={key} className="rounded-xl border border-line bg-bg p-5">
+            <div key={key} className="rounded-xl border border-line bg-surface2/40 p-5">
               <Text
                 label={`${key} — heading`}
                 value={data.skills[key].label}
@@ -399,7 +403,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
         <Section id="education" title="Education">
           <div className="space-y-3">
             {data.education.map((e, i) => (
-              <div key={i} className="rounded-xl border border-line bg-bg p-5">
+              <div key={i} className="rounded-xl border border-line bg-surface2/40 p-5">
                 <div className="mb-2 flex justify-end gap-1">
                   <RowButton onClick={() => update((d) => { d.education = move(d.education, i, -1); })}>↑</RowButton>
                   <RowButton onClick={() => update((d) => { d.education = move(d.education, i, 1); })}>↓</RowButton>
@@ -447,7 +451,7 @@ function ProjectCard({
   onRemove: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-bg p-5">
+    <div className="rounded-xl border border-line bg-surface2/40 p-5">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-semibold text-ink">
           {project.title || "Untitled project"}
