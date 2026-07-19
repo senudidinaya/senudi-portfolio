@@ -70,10 +70,12 @@ function RowButton({
   onClick,
   children,
   danger,
+  className = "",
 }: {
   onClick: () => void;
   children: React.ReactNode;
   danger?: boolean;
+  className?: string;
 }) {
   return (
     <button
@@ -81,10 +83,31 @@ function RowButton({
       onClick={onClick}
       className={`rounded-md border border-line px-2 py-1 text-xs transition-colors hover:bg-bg ${
         danger ? "text-warm" : "text-muted hover:text-ink"
-      }`}
+      } ${className}`}
     >
       {children}
     </button>
+  );
+}
+
+// The "+ Add" affordance: a RowButton with more presence and its own spacing,
+// so it doesn't crowd the content above it.
+function AddButton({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mt-3">
+      <RowButton
+        onClick={onClick}
+        className="border-dashed px-3 py-1.5 font-medium hover:border-cool/50 hover:text-cool"
+      >
+        {children}
+      </RowButton>
+    </div>
   );
 }
 
@@ -140,7 +163,7 @@ function StringList({
           </div>
         ))}
       </div>
-      <RowButton onClick={() => onChange([...items, ""])}>+ Add</RowButton>
+      <AddButton onClick={() => onChange([...items, ""])}>+ Add</AddButton>
     </div>
   );
 }
@@ -326,7 +349,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
               </div>
             ))}
           </div>
-          <RowButton onClick={() => update((d) => { d.metrics.push({ value: "", label: "" }); })}>+ Add metric</RowButton>
+          <AddButton onClick={() => update((d) => { d.metrics.push({ value: "", label: "" }); })}>+ Add metric</AddButton>
         </Section>
 
         <Section id="about" title="About">
@@ -369,7 +392,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
               />
             ))}
           </div>
-          <RowButton
+          <AddButton
             onClick={() =>
               update((d) => {
                 d.projects.push({
@@ -384,7 +407,7 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
             }
           >
             + Add project
-          </RowButton>
+          </AddButton>
         </Section>
 
         <Section id="publication" title="Publication">
@@ -417,9 +440,9 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
               </div>
             ))}
           </div>
-          <RowButton onClick={() => update((d) => { d.education.push({ school: "", credential: "", timeframe: "" }); })}>
+          <AddButton onClick={() => update((d) => { d.education.push({ school: "", credential: "", timeframe: "" }); })}>
             + Add education
-          </RowButton>
+          </AddButton>
         </Section>
 
         <Section id="additional" title="Additional">
@@ -486,7 +509,7 @@ function ProjectCard({
             </div>
           </div>
         ) : (
-          <RowButton onClick={() => onChange((p) => { p.metric = { value: "", label: "" }; })}>+ Add metric</RowButton>
+          <AddButton onClick={() => onChange((p) => { p.metric = { value: "", label: "" }; })}>+ Add metric</AddButton>
         )}
 
         {/* Optional link */}
@@ -502,7 +525,7 @@ function ProjectCard({
             </div>
           </div>
         ) : (
-          <RowButton onClick={() => onChange((p) => { p.link = { href: "", label: "" }; })}>+ Add link</RowButton>
+          <AddButton onClick={() => onChange((p) => { p.link = { href: "", label: "" }; })}>+ Add link</AddButton>
         )}
       </div>
     </div>
