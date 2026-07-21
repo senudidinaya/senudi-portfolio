@@ -15,6 +15,9 @@ type DitherMediaProps = {
   cell?: number;
   transition?: "materialize" | "none";
   breathe?: boolean;
+  /** histogram stretch for low-contrast sources; disable when the crop
+      leaves mostly midtones and the stretch amplifies them into texture */
+  autoContrast?: boolean;
 };
 
 const MAX_CELLS = 24000;
@@ -48,6 +51,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       cell = 3,
       transition = "materialize",
       breathe = false,
+      autoContrast = true,
     },
     ref
   ) {
@@ -130,6 +134,10 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
           const l = 0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2];
           lum[i] = l / 255;
           hist[l | 0]++;
+        }
+        if (!autoContrast) {
+          s.sampled = true;
+          return;
         }
         // stretch the 2nd–98th percentile across the full ramp, otherwise
         // low-contrast sources collapse into a flat wall of lines
@@ -379,7 +387,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         s.play = null;
         img.onload = null;
       };
-    }, [s, src, video, cell, transition, breathe]);
+    }, [s, src, video, cell, transition, breathe, autoContrast]);
 
     useImperativeHandle(
       ref,

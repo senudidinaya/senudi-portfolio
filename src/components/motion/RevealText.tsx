@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 const word: Variants = {
   hidden: { y: "115%" },
@@ -26,12 +26,7 @@ export function RevealText({
   delay?: number;
   stagger?: number;
 }) {
-  const reduceMotion = useReducedMotion();
   const words = children.split(" ");
-
-  if (reduceMotion) {
-    return <Tag className={className}>{children}</Tag>;
-  }
 
   const container: Variants = {
     hidden: {},

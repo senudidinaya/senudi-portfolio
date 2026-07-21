@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { MotionConfig } from "framer-motion";
 
 const KEY = "senudi_intro_seen";
 const PLAY_MS = 1400;
@@ -26,7 +27,9 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
   return (
     <IntroContext.Provider value={value}>
       <MarkDoneContext.Provider value={() => setIntroDone(true)}>
-        {children}
+        {/* keeps SSR markup identical for reduced-motion visitors; framer
+            drops transform animations for them at runtime instead */}
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
       </MarkDoneContext.Provider>
     </IntroContext.Provider>
   );

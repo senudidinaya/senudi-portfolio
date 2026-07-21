@@ -18,16 +18,8 @@ export function Magnetic({
   const reduceMotion = useReducedMotion();
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  if (reduceMotion) {
-    return (
-      <div className={className} style={{ display: "inline-block" }}>
-        {children}
-      </div>
-    );
-  }
-
   function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (e.pointerType !== "mouse") return;
+    if (reduceMotion || e.pointerType !== "mouse") return;
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();

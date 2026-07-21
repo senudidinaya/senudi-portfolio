@@ -1,8 +1,10 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 
 // Block-level fade + rise on first scroll into view. Successor to Reveal.
+// Reduced motion is handled by the app-level MotionConfig, which strips the
+// transform and leaves a plain fade.
 export function MotionReveal({
   children,
   className,
@@ -14,12 +16,6 @@ export function MotionReveal({
   delay?: number;
   y?: number;
 }) {
-  const reduceMotion = useReducedMotion();
-
-  if (reduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
     <motion.div
       className={className}

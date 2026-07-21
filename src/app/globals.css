@@ -9,7 +9,7 @@
   --ink: 41 37 23; /* deep umber */
   --muted: 64 58 40; /* darker than the design ramp suggests — 4.5:1 on --bg */
   --line: 122 110 78;
-  --warm: 138 84 26; /* rust */
+  --warm: 120 71 20; /* rust — deep enough for 3:1 on --bg as display text */
   --cool: 72 87 92; /* storm */
   --bridge: 58 93 63; /* moss */
 }
