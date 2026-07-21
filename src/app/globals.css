@@ -110,6 +110,11 @@ body {
   color: rgb(var(--muted));
 }
 
+/* Repeat visits skip the intro before paint (see the inline script in layout) */
+html[data-intro-done] .intro-overlay {
+  display: none;
+}
+
 /* Film grain over the whole public site. The admin keeps its clean surface,
    hence the :has() opt-out. */
 .grain {

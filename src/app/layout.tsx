@@ -3,6 +3,11 @@ import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SecretEntry } from "@/components/SecretEntry";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { IntroProvider, Preloader } from "@/components/motion/Preloader";
+
+// runs before first paint so repeat visits never flash the intro overlay
+const introSkip =
+  'try{if(sessionStorage.getItem("senudi_intro_seen")||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.setAttribute("data-intro-done","")}catch(e){}';
 import { getContent } from "@/lib/content";
 import "./globals.css";
 
@@ -52,8 +57,12 @@ export default function RootLayout({
       className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable}`}
     >
       <body className="font-sans antialiased">
+        <script dangerouslySetInnerHTML={{ __html: introSkip }} />
         <ThemeProvider>
-          <SmoothScroll>{children}</SmoothScroll>
+          <IntroProvider>
+            <SmoothScroll>{children}</SmoothScroll>
+            <Preloader />
+          </IntroProvider>
         </ThemeProvider>
         <SecretEntry />
         <div className="grain" aria-hidden="true" />
