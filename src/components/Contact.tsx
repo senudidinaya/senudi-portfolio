@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import emailjs from "@emailjs/browser";
+import { motion } from "framer-motion";
 import type { Profile, SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
 import { Reveal } from "./Reveal";
+import { Magnetic } from "./motion/Magnetic";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -52,22 +54,41 @@ export function Contact({
   }
 
   const fieldClass =
-    "w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-muted/70 transition-colors focus:border-cool focus:outline-none";
+    "w-full rounded-none border-0 border-b border-line bg-transparent px-0 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-ink focus:outline-none focus:ring-0";
 
   return (
     <section id="contact" className="border-t border-line bg-bg px-5 py-28 sm:px-8 sm:py-40">
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="04 / Contact" title="Let's talk" />
 
-        <div className="mt-12 grid gap-14 lg:grid-cols-[1fr_1.1fr]">
-          <Reveal className="space-y-8">
+        {/* closing statement — brand line, same register as the hero sentence */}
+        <div className="mt-12 font-serif text-display-xl font-light uppercase tracking-display text-ink">
+          <StatementLine delay={0}>Let&rsquo;s build</StatementLine>
+          <StatementLine delay={0.14}>
+            the <em className="lowercase text-bridge">bridge</em>.
+          </StatementLine>
+        </div>
+
+        <div className="mt-16 grid gap-14 sm:mt-20 lg:grid-cols-[1fr_1.1fr]">
+          <Reveal className="space-y-10">
             <p className="max-w-md font-serif text-xl font-light leading-relaxed text-ink sm:text-2xl">
               Looking for someone who can read the business need and build the
               solution? I'd love to hear what you're working on.
             </p>
 
+            <a
+              href={`mailto:${profile.email}`}
+              className="group relative inline-block max-w-full break-words pb-2 font-serif text-2xl font-light text-ink sm:text-3xl xl:text-4xl"
+            >
+              {profile.email}
+              <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-line" />
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-ink transition-transform duration-500 group-hover:scale-x-100"
+              />
+            </a>
+
             <ul className="space-y-4">
-              <ContactLink label="Email" value={profile.email} href={`mailto:${profile.email}`} />
               <ContactLink label="LinkedIn" value="in/senudi-rupasinghe" href={profile.linkedin} />
               <ContactLink label="GitHub" value="senudidinaya" href={profile.github} />
               <ContactLink label="Location" value={profile.location} />
@@ -75,7 +96,7 @@ export function Contact({
           </Reveal>
 
           <Reveal delay={120}>
-            <div className="rounded-2xl border border-line bg-surface p-6 shadow-lg shadow-ink/5 sm:p-8">
+            <div className="border-t border-line pt-8 lg:border-0 lg:pt-0">
               {status === "sent" ? (
                 <div className="grid min-h-[18rem] place-items-center text-center">
                   <div>
@@ -153,17 +174,19 @@ export function Contact({
                       </p>
                     )}
 
-                    <button
-                      type="submit"
-                      disabled={status === "sending"}
-                      className="w-full rounded-xl bg-ink px-6 py-3.5 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-60"
-                    >
-                      {status === "sending"
-                        ? "Sending…"
-                        : configured
-                        ? "Send message"
-                        : "Compose email"}
-                    </button>
+                    <Magnetic>
+                      <button
+                        type="submit"
+                        disabled={status === "sending"}
+                        className="terminal-card px-8 py-3.5 font-mono text-xs uppercase tracking-[0.2em] text-ink transition-colors duration-300 hover:bg-surface disabled:opacity-60"
+                      >
+                        {status === "sending"
+                          ? "Sending…"
+                          : configured
+                          ? "Send message"
+                          : "Compose email"}
+                      </button>
+                    </Magnetic>
                   </form>
                 </>
               )}
@@ -172,6 +195,36 @@ export function Contact({
         </div>
       </div>
     </section>
+  );
+}
+
+function StatementLine({
+  delay,
+  children,
+}: {
+  delay: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.span
+      className="block overflow-hidden pb-[0.09em] -mb-[0.09em]"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.6 }}
+    >
+      <motion.span
+        className="block"
+        variants={{
+          hidden: { y: "112%" },
+          visible: {
+            y: "0%",
+            transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay },
+          },
+        }}
+      >
+        {children}
+      </motion.span>
+    </motion.span>
   );
 }
 
