@@ -150,6 +150,19 @@ body:has(.admin-theme) .grain {
   background-color: rgb(var(--line));
 }
 
+/* Skills ticker — the reduced-motion block above freezes it in place */
+.marquee-track {
+  animation: marquee-scroll 45s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* Mono print marker, e.g. "+++ 01 / ABOUT +++" (the +++ come in as text) */
 .marker {
   font-family: var(--font-plex-mono), monospace;

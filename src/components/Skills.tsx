@@ -1,41 +1,29 @@
 import type { SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
-import { Reveal } from "./Reveal";
+import { MotionReveal } from "./motion/MotionReveal";
 
 function SkillColumn({
+  number,
   label,
   items,
-  accent,
-  align = "left",
+  accentClass,
 }: {
+  number: string;
   label: string;
   items: string[];
-  accent: "warm" | "cool" | "bridge";
-  align?: "left" | "center";
+  accentClass: string;
 }) {
-  const dot =
-    accent === "warm"
-      ? "bg-warm"
-      : accent === "cool"
-      ? "bg-cool"
-      : "bg-bridge";
   return (
-    <div className={align === "center" ? "text-center" : ""}>
-      <h3
-        className={`flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-ink ${
-          align === "center" ? "justify-center" : ""
-        }`}
-      >
-        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-        {label}
+    <div>
+      <h3 className={`font-mono text-xs uppercase tracking-[0.18em] ${accentClass}`}>
+        {number} / {label}
       </h3>
-      <ul className="mt-5 space-y-2.5">
+      <ul className="mt-6 space-y-3">
         {items.map((item) => (
-          <li
-            key={item}
-            className="text-[0.95rem] leading-snug text-muted"
-          >
-            {item}
+          <li key={item} className="font-serif text-lg font-light leading-snug text-ink">
+            <span className="relative inline-block after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-ink after:transition-transform after:duration-300 after:content-[''] hover:after:scale-x-100">
+              {item}
+            </span>
           </li>
         ))}
       </ul>
@@ -44,40 +32,67 @@ function SkillColumn({
 }
 
 export function Skills({ skills }: { skills: SiteContent["skills"] }) {
+  const line =
+    [...skills.business.items, ...skills.shared.items, ...skills.technical.items].join(
+      "  +++  "
+    ) + "  +++  ";
+
   return (
-    <section id="skills" className="border-y border-line bg-surface px-5 py-28 sm:px-8 sm:py-40">
+    <section
+      id="skills"
+      className="overflow-hidden border-y border-line bg-surface px-5 py-28 sm:px-8 sm:py-40"
+    >
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="02 / Skills" title="Two sides, one workflow" />
 
-        <Reveal>
+        <MotionReveal>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted">
             Business analysis on one side, software engineering on the other, and
             the data and architecture work that connects them.
           </p>
-        </Reveal>
+        </MotionReveal>
+      </div>
 
-        <Reveal>
-          <div className="mt-12 grid gap-12 md:grid-cols-3 md:gap-8">
+      {/* full-bleed ticker of every skill in the three groups */}
+      <div className="marquee -mx-5 mt-14 overflow-hidden border-y border-line py-3.5 sm:-mx-8">
+        <div className="marquee-track flex w-max">
+          <span className="whitespace-pre font-mono text-xs uppercase tracking-[0.25em] text-muted">
+            {line}
+          </span>
+          <span
+            aria-hidden="true"
+            className="whitespace-pre font-mono text-xs uppercase tracking-[0.25em] text-muted"
+          >
+            {line}
+          </span>
+        </div>
+      </div>
+
+      <div className="mx-auto mt-14 max-w-content sm:mt-16">
+        <MotionReveal>
+          <div className="grid gap-12 md:grid-cols-3 md:gap-8">
             <SkillColumn
+              number="01"
               label={skills.business.label}
               items={skills.business.items}
-              accent="warm"
+              accentClass="text-warm"
             />
-            <div className="relative md:border-x md:border-line md:px-8">
+            <div className="md:border-x md:border-line md:px-8">
               <SkillColumn
+                number="02"
                 label={skills.shared.label}
                 items={skills.shared.items}
-                accent="bridge"
-                align="center"
+                accentClass="text-bridge"
               />
             </div>
             <SkillColumn
+              number="03"
               label={skills.technical.label}
               items={skills.technical.items}
-              accent="cool"
+              accentClass="text-cool"
             />
           </div>
-        </Reveal>
+        </MotionReveal>
       </div>
     </section>
   );
