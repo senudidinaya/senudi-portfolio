@@ -35,13 +35,22 @@ const plexMono = IBM_Plex_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const { profile } = await getContent();
+  const title = `${profile.name} \u2014 ${profile.headline}`;
   return {
-    title: `${profile.name} \u2014 ${profile.headline}`,
+    // TODO: set NEXT_PUBLIC_SITE_URL in Vercel once the final domain is live
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "https://senudi-portfolio.vercel.app"
+    ),
+    title,
     description: profile.tagline,
     openGraph: {
-      title: `${profile.name} \u2014 ${profile.headline}`,
+      title,
       description: profile.tagline,
       type: "website",
+      images: [{ url: "/og.jpg", width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
     },
   };
 }
