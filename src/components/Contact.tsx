@@ -79,7 +79,7 @@ export function Contact({
               {status === "sent" ? (
                 <div className="grid min-h-[18rem] place-items-center text-center">
                   <div>
-                    <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-bridge/12 text-bridge">
+                    <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-line text-bridge">
                       <svg
                         viewBox="0 0 24 24"
                         fill="none"

@@ -24,6 +24,13 @@ const config: Config = {
         sans: ["var(--font-plex-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
       },
+      fontSize: {
+        "display-xl": ["clamp(3rem, 8vw, 7.5rem)", { lineHeight: "0.95" }],
+        "display-lg": ["clamp(2.25rem, 5.5vw, 4.5rem)", { lineHeight: "1.02" }],
+      },
+      letterSpacing: {
+        display: "-0.02em",
+      },
       maxWidth: {
         content: "68rem",
       },

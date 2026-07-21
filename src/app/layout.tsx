@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SecretEntry } from "@/components/SecretEntry";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { getContent } from "@/lib/content";
 import "./globals.css";
 
@@ -51,8 +52,11 @@ export default function RootLayout({
       className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable}`}
     >
       <body className="font-sans antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <SmoothScroll>{children}</SmoothScroll>
+        </ThemeProvider>
         <SecretEntry />
+        <div className="grain" aria-hidden="true" />
       </body>
     </html>
   );

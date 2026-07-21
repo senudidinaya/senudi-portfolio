@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --bg: 240 248 255;
-  --surface: 255 255 255;
-  --surface-2: 224 242 254;
-  --ink: 55 65 81;
-  --muted: 107 114 128;
-  --line: 229 231 235;
-  --warm: 181 112 26; /* ochre */
-  --cool: 47 93 138; /* slate blue */
-  --bridge: 47 125 92; /* pine green */
+  --bg: 178 164 128; /* tan paper */
+  --surface: 186 173 140;
+  --surface-2: 166 151 112;
+  --ink: 41 37 23; /* deep umber */
+  --muted: 64 58 40; /* darker than the design ramp suggests — 4.5:1 on --bg */
+  --line: 122 110 78;
+  --warm: 138 84 26; /* rust */
+  --cool: 72 87 92; /* storm */
+  --bridge: 58 93 63; /* moss */
 }
 
 .dark {
-  --bg: 15 23 42;
-  --surface: 30 41 59;
-  --surface-2: 45 55 72;
-  --ink: 209 213 219;
-  --muted: 161 161 170;
-  --line: 75 85 99;
-  --warm: 221 158 78;
-  --cool: 111 160 204;
-  --bridge: 112 191 143;
+  --bg: 33 30 19;
+  --surface: 43 39 25;
+  --surface-2: 55 50 32;
+  --ink: 193 180 143;
+  --muted: 146 135 102;
+  --line: 82 74 49;
+  --warm: 209 157 89;
+  --cool: 143 161 157;
+  --bridge: 133 171 131;
 }
 
 /* Admin dashboard palette — scoped to the /admin editor only, so the public
@@ -106,6 +106,50 @@ body {
   font-family: var(--font-plex-mono), monospace;
   font-size: 0.7rem;
   letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+
+/* Film grain over the whole public site. The admin keeps its clean surface,
+   hence the :has() opt-out. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body:has(.admin-theme) .grain {
+  display: none;
+}
+
+/* Terminal-print card: hairline frame on bare paper, no fill */
+.terminal-card {
+  border: 1px solid rgb(var(--line));
+  background-color: transparent;
+}
+
+/* Draws a second 1px rule 3px below an element's border-b — the double
+   hairline that separates a card header from its body */
+.double-rule {
+  position: relative;
+}
+.double-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background-color: rgb(var(--line));
+}
+
+/* Mono print marker, e.g. "+++ 01 / ABOUT +++" (the +++ come in as text) */
+.marker {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: rgb(var(--muted));
 }
