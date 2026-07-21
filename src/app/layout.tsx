@@ -3,6 +3,7 @@ import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SecretEntry } from "@/components/SecretEntry";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { IntroProvider } from "@/components/motion/Preloader";
 import { getContent } from "@/lib/content";
 import "./globals.css";
 
@@ -59,7 +60,9 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased">
         <ThemeProvider>
-          <SmoothScroll>{children}</SmoothScroll>
+          <IntroProvider>
+            <SmoothScroll>{children}</SmoothScroll>
+          </IntroProvider>
         </ThemeProvider>
         <SecretEntry />
         <div
