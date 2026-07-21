@@ -141,7 +141,7 @@ export function Projects({
   const flagships = projects.filter((p) => !p.kind.includes(".NET foundation"));
 
   return (
-    <section id="work" className="px-5 py-24 sm:px-8 sm:py-32">
+    <section id="work" className="px-5 py-28 sm:px-8 sm:py-40">
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="03 / Work" title="How I've grown" />
 

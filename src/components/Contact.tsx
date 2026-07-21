@@ -55,7 +55,7 @@ export function Contact({
     "w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-ink placeholder:text-muted/70 transition-colors focus:border-cool focus:outline-none";
 
   return (
-    <section id="contact" className="border-t border-line bg-bg px-5 py-24 sm:px-8 sm:py-32">
+    <section id="contact" className="border-t border-line bg-bg px-5 py-28 sm:px-8 sm:py-40">
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="04 / Contact" title="Let's talk" />
 

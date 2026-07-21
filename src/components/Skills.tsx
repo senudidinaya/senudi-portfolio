@@ -45,7 +45,7 @@ function SkillColumn({
 
 export function Skills({ skills }: { skills: SiteContent["skills"] }) {
   return (
-    <section id="skills" className="border-y border-line bg-surface px-5 py-24 sm:px-8 sm:py-32">
+    <section id="skills" className="border-y border-line bg-surface px-5 py-28 sm:px-8 sm:py-40">
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="02 / Skills" title="Two sides, one workflow" />
 

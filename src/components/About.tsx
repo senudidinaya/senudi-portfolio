@@ -1,6 +1,7 @@
 import type { SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
-import { Reveal } from "./Reveal";
+import { MotionReveal } from "./motion/MotionReveal";
+import { Facets } from "./Facets";
 
 export function About({
   about,
@@ -11,70 +12,73 @@ export function About({
   education: SiteContent["education"];
   additional: SiteContent["additional"];
 }) {
+  const [lead, ...rest] = about.paragraphs;
+
   return (
-    <section id="about" className="px-5 py-24 sm:px-8 sm:py-32">
+    <section id="about" className="px-5 py-28 sm:px-8 sm:py-40">
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="01 / About" title="Who I am" />
 
-        <div className="mt-12 grid gap-14 lg:grid-cols-[1.4fr_1fr]">
-          <Reveal className="space-y-6">
-            {about.paragraphs.map((p, i) => (
-              <p
-                key={i}
-                className={
-                  i === 0
-                    ? "font-serif text-xl font-light leading-relaxed text-ink sm:text-2xl"
-                    : "text-base leading-relaxed text-muted"
-                }
-              >
-                {p}
+        <div className="mt-14 sm:mt-20">
+          {lead && (
+            <MotionReveal>
+              <p className="max-w-3xl font-serif text-2xl font-light leading-snug text-ink sm:text-3xl">
+                {lead}
               </p>
+            </MotionReveal>
+          )}
+
+          {rest.length > 0 && (
+            <div className="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-12">
+              {rest.map((p, i) => (
+                <MotionReveal key={i} delay={i * 0.08}>
+                  <p className="text-base leading-relaxed text-muted">{p}</p>
+                </MotionReveal>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-16 border-b border-line sm:mt-20">
+            {education.map((e, i) => (
+              <MotionReveal key={e.school} delay={i * 0.07}>
+                <Row meta={e.timeframe}>
+                  <p className="font-serif text-lg font-light text-ink">{e.credential}</p>
+                  <p className="mt-1 text-sm text-muted">{e.school}</p>
+                </Row>
+              </MotionReveal>
             ))}
-          </Reveal>
-
-          <Reveal delay={120} className="space-y-10">
-            <div>
-              <h3 className="eyebrow">Education</h3>
-              <ul className="mt-4 space-y-5">
-                {education.map((e) => (
-                  <li key={e.school} className="border-l-2 border-line pl-4">
-                    <p className="font-sans text-sm font-semibold text-ink">
-                      {e.credential}
-                    </p>
-                    <p className="mt-0.5 text-sm text-muted">{e.school}</p>
-                    <p className="mt-0.5 font-mono text-xs text-muted">
-                      {e.timeframe}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <h3 className="eyebrow">Languages</h3>
-                <ul className="mt-3 space-y-1.5">
-                  {additional.languages.map((l) => (
-                    <li key={l} className="text-sm text-muted">
-                      {l}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h3 className="eyebrow">Beyond work</h3>
-                <ul className="mt-3 space-y-1.5">
-                  {additional.activities.map((a) => (
-                    <li key={a} className="text-sm text-muted">
-                      {a}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </Reveal>
+            <MotionReveal delay={education.length * 0.07}>
+              <Row meta="Languages">
+                <p className="font-serif text-lg font-light text-ink">
+                  {additional.languages.join(" · ")}
+                </p>
+              </Row>
+            </MotionReveal>
+            <MotionReveal delay={(education.length + 1) * 0.07}>
+              <Row meta="Beyond work">
+                <p className="font-serif text-lg font-light text-ink">
+                  {additional.activities.join(" · ")}
+                </p>
+              </Row>
+            </MotionReveal>
+          </div>
         </div>
+
+        <Facets />
       </div>
     </section>
+  );
+}
+
+function Row({ meta, children }: { meta: string; children: React.ReactNode }) {
+  return (
+    <div className="group border-t border-line transition-colors duration-300 hover:border-muted">
+      <div className="grid grid-cols-[6.5rem_1fr] gap-4 py-5 transition-transform duration-300 group-hover:translate-x-2 sm:grid-cols-[11rem_1fr] sm:gap-8">
+        <span className="pt-1 font-mono text-[0.65rem] uppercase leading-relaxed tracking-[0.18em] text-muted">
+          {meta}
+        </span>
+        <div>{children}</div>
+      </div>
+    </div>
   );
 }

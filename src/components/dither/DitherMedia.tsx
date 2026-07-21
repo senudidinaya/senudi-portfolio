@@ -4,6 +4,8 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 export type DitherMediaHandle = {
   scramble: (duration?: number) => void;
+  playVideo: () => void;
+  pauseVideo: () => void;
 };
 
 type DitherMediaProps = {
@@ -18,6 +20,8 @@ type DitherMediaProps = {
   /** histogram stretch for low-contrast sources; disable when the crop
       leaves mostly midtones and the stretch amplifies them into texture */
   autoContrast?: boolean;
+  /** false = video waits for playVideo() (hover-to-play cards) */
+  videoAutoPlay?: boolean;
 };
 
 const MAX_CELLS = 24000;
@@ -52,6 +56,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       transition = "materialize",
       breathe = false,
       autoContrast = true,
+      videoAutoPlay = true,
     },
     ref
   ) {
@@ -81,6 +86,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       lastBreathe: 0,
       lastSample: 0,
       play: null as null | (() => void),
+      vidCtl: null as null | ((on: boolean) => void),
     }).current;
 
     useEffect(() => {
@@ -349,6 +355,15 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
 
       resolveInk();
       s.play = schedule;
+      s.vidCtl = (on) => {
+        if (!useVideo || !vid || !s.inView) return;
+        if (on) {
+          vid.play().catch(() => {});
+          schedule();
+        } else {
+          vid.pause();
+        }
+      };
 
       const ro = new ResizeObserver((entries) => layout(entries[0].contentRect));
       ro.observe(wrap);
@@ -357,7 +372,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         ([entry]) => {
           s.inView = entry.isIntersecting;
           if (s.inView) {
-            if (useVideo && vid) vid.play().catch(() => {});
+            if (useVideo && vid && videoAutoPlay) vid.play().catch(() => {});
             kick();
           } else {
             if (vid) vid.pause();
@@ -376,7 +391,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
 
       if (vid) {
         vid.muted = true;
-        if (!useVideo) vid.pause();
+        if (!useVideo || !videoAutoPlay) vid.pause();
       }
 
       return () => {
@@ -385,9 +400,10 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         mo.disconnect();
         stop();
         s.play = null;
+        s.vidCtl = null;
         img.onload = null;
       };
-    }, [s, src, video, cell, transition, breathe, autoContrast]);
+    }, [s, src, video, cell, transition, breathe, autoContrast, videoAutoPlay]);
 
     useImperativeHandle(
       ref,
@@ -396,6 +412,12 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
           if (s.static || !s.settled || !s.inView || s.anim) return;
           s.anim = { kind: "scramble", start: performance.now(), ms: duration };
           s.play?.();
+        },
+        playVideo() {
+          s.vidCtl?.(true);
+        },
+        pauseVideo() {
+          s.vidCtl?.(false);
         },
       }),
       [s]
