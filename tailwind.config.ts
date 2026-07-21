@@ -27,6 +27,13 @@ const config: Config = {
       maxWidth: {
         content: "68rem",
       },
+      fontSize: {
+        "display-xl": ["clamp(3rem, 8vw, 7.5rem)", { lineHeight: "0.95" }],
+        "display-lg": ["clamp(2.25rem, 5.5vw, 4.5rem)", { lineHeight: "1.02" }],
+      },
+      letterSpacing: {
+        display: "-0.03em",
+      },
       keyframes: {
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(12px)" },
