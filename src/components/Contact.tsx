@@ -5,7 +5,7 @@ import emailjs from "@emailjs/browser";
 import { motion } from "framer-motion";
 import type { Profile, SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
-import { Reveal } from "./Reveal";
+import { MotionReveal } from "./motion/MotionReveal";
 import { Magnetic } from "./motion/Magnetic";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -70,7 +70,7 @@ export function Contact({
         </div>
 
         <div className="mt-16 grid gap-14 sm:mt-20 lg:grid-cols-[1fr_1.1fr]">
-          <Reveal className="space-y-10">
+          <MotionReveal className="space-y-10">
             <p className="max-w-md font-serif text-xl font-light leading-relaxed text-ink sm:text-2xl">
               Looking for someone who can read the business need and build the
               solution? I'd love to hear what you're working on.
@@ -93,9 +93,9 @@ export function Contact({
               <ContactLink label="GitHub" value="senudidinaya" href={profile.github} />
               <ContactLink label="Location" value={profile.location} />
             </ul>
-          </Reveal>
+          </MotionReveal>
 
-          <Reveal delay={120}>
+          <MotionReveal delay={0.12}>
             <div className="border-t border-line pt-8 lg:border-0 lg:pt-0">
               {status === "sent" ? (
                 <div className="grid min-h-[18rem] place-items-center text-center">
@@ -191,7 +191,7 @@ export function Contact({
                 </>
               )}
             </div>
-          </Reveal>
+          </MotionReveal>
         </div>
       </div>
     </section>

@@ -8,29 +8,54 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 import { MotionConfig } from "framer-motion";
 
 const KEY = "senudi_intro_seen";
 const PLAY_MS = 1400;
 const LIFT_MS = 700;
 
-const IntroContext = createContext<{ introDone: boolean }>({ introDone: true });
-const MarkDoneContext = createContext<(() => void) | null>(null);
+const IntroContext = createContext<{ introDone: boolean; introPlaying: boolean }>({
+  introDone: true,
+  introPlaying: false,
+});
+const IntroSetContext = createContext<{
+  markPlaying: () => void;
+  markDone: () => void;
+} | null>(null);
 
 export function useIntro() {
   return useContext(IntroContext);
 }
 
+// For content that must be visible in the server HTML (LCP, no-JS) but should
+// still play the entrance when the intro curtain is actually up: `gated` only
+// flips while the opaque overlay covers the page, so the swap is invisible.
+export function useIntroGate() {
+  const { introDone, introPlaying } = useIntro();
+  const [gated, setGated] = useState(false);
+  useEffect(() => {
+    if (introPlaying && !introDone) setGated(true);
+  }, [introPlaying, introDone]);
+  return { gated, introDone };
+}
+
 export function IntroProvider({ children }: { children: React.ReactNode }) {
-  const [introDone, setIntroDone] = useState(false);
-  const value = useMemo(() => ({ introDone }), [introDone]);
+  const [intro, setIntro] = useState({ introDone: false, introPlaying: false });
+  const setters = useMemo(
+    () => ({
+      markPlaying: () => setIntro((s) => ({ ...s, introPlaying: true })),
+      markDone: () => setIntro((s) => ({ ...s, introDone: true })),
+    }),
+    []
+  );
   return (
-    <IntroContext.Provider value={value}>
-      <MarkDoneContext.Provider value={() => setIntroDone(true)}>
+    <IntroContext.Provider value={intro}>
+      <IntroSetContext.Provider value={setters}>
         {/* keeps SSR markup identical for reduced-motion visitors; framer
             drops transform animations for them at runtime instead */}
         <MotionConfig reducedMotion="user">{children}</MotionConfig>
-      </MarkDoneContext.Provider>
+      </IntroSetContext.Provider>
     </IntroContext.Provider>
   );
 }
@@ -48,13 +73,20 @@ function flick(i: number, tick: number) {
 }
 
 export function Preloader() {
-  const markDone = useContext(MarkDoneContext);
+  const setters = useContext(IntroSetContext);
+  // the intro belongs to the public site only
+  const onAdmin = usePathname()?.startsWith("/admin") ?? false;
   const [stage, setStage] = useState<"boot" | "playing" | "lifting" | "done">("boot");
   const noiseRef = useRef<HTMLCanvasElement>(null);
   const countRef = useRef<HTMLSpanElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (onAdmin) {
+      setters?.markDone();
+      setStage("done");
+      return;
+    }
     if (shouldPlay === null) {
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       let seen = "1";
@@ -68,11 +100,12 @@ export function Preloader() {
     }
 
     if (!shouldPlay) {
-      markDone?.();
+      setters?.markDone();
       setStage("done");
       return;
     }
 
+    setters?.markPlaying();
     setStage("playing");
     const prevOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
@@ -122,7 +155,7 @@ export function Preloader() {
 
       if (t >= PLAY_MS) {
         if (countRef.current) countRef.current.textContent = "100";
-        markDone?.();
+        setters?.markDone();
         setStage("lifting");
         liftTimer = window.setTimeout(() => {
           document.documentElement.style.overflow = prevOverflow;

@@ -6,7 +6,7 @@ import { DitherMedia, type DitherMediaHandle } from "@/components/dither/DitherM
 import type { FacetMedia } from "@/data/media";
 
 const appear: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 18 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,

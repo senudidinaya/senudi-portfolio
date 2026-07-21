@@ -2,7 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import { CountUp } from "@/components/motion/CountUp";
-import { useIntro } from "@/components/motion/Preloader";
+import { useIntroGate } from "@/components/motion/Preloader";
 import type { Metric } from "@/data/content";
 
 const cell: Variants = {
@@ -15,16 +15,17 @@ const cell: Variants = {
 };
 
 export function HeroMetrics({ metrics }: { metrics: Metric[] }) {
-  // hold the stagger until the curtain lifts, then fire on inView as usual;
-  // introDone is false on the server and at hydration, so markup stays stable
-  const { introDone } = useIntro();
+  // server HTML shows the values plainly; when the intro overlay is up the
+  // grid remounts hidden (invisibly) and staggers in after the curtain
+  const { gated, introDone } = useIntroGate();
 
   return (
     <motion.dl
+      key={gated ? "gated" : "ssr"}
       className="grid grid-cols-2 gap-x-6 gap-y-8 border-t border-line pb-8 pt-6 sm:grid-cols-4"
-      initial="hidden"
+      initial={gated ? "hidden" : false}
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
-      {...(introDone ? { whileInView: "visible" as const, viewport: { once: true, amount: 0.25 } } : {})}
+      {...(!gated || introDone ? { whileInView: "visible" as const, viewport: { once: true, amount: 0.25 } } : {})}
     >
       {metrics.map((m) => (
         <motion.div key={m.label} variants={cell} className="border-l border-line pl-4 sm:pl-5">

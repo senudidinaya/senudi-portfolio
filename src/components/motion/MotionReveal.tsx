@@ -9,7 +9,7 @@ export function MotionReveal({
   children,
   className,
   delay = 0,
-  y = 20,
+  y = 18,
 }: {
   children: React.ReactNode;
   className?: string;

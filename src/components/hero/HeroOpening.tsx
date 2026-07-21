@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { useIntro } from "@/components/motion/Preloader";
+import { useIntroGate } from "@/components/motion/Preloader";
 import { Magnetic } from "@/components/motion/Magnetic";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -15,7 +15,7 @@ const rise: Variants = {
 };
 
 const fade: Variants = {
-  hidden: { opacity: 0, y: 14 },
+  hidden: { opacity: 0, y: 18 },
   visible: (d: number) => ({
     opacity: 1,
     y: 0,
@@ -42,12 +42,14 @@ export function HeroOpening({
   tagline: string;
   resumeFile: string;
 }) {
-  const { introDone } = useIntro();
+  // rendered visible in the server HTML (LCP fires at first paint); the
+  // entrance only arms itself once the opaque intro overlay is up
+  const { gated, introDone } = useIntroGate();
 
   return (
     <motion.div
-      initial="hidden"
-      animate={introDone ? "visible" : "hidden"}
+      initial={false}
+      animate={!gated || introDone ? "visible" : "hidden"}
       className="flex flex-1 flex-col"
     >
       {/* status row */}

@@ -7,10 +7,9 @@ export function Footer({ profile }: { profile: Profile }) {
       <div className="mx-auto max-w-content">
         <p
           aria-hidden="true"
-          className="select-none font-serif text-display-lg font-light uppercase leading-none tracking-display text-ink opacity-10"
-        >
-          {profile.name}
-        </p>
+          data-text={profile.name}
+          className="ghost-text select-none font-serif text-display-lg font-light uppercase leading-none tracking-display text-ink opacity-10"
+        />
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-line pt-6">
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted">

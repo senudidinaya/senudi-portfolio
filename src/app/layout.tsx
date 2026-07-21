@@ -4,10 +4,11 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SecretEntry } from "@/components/SecretEntry";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { IntroProvider, Preloader } from "@/components/motion/Preloader";
+import { CursorRing } from "@/components/motion/CursorRing";
 
-// runs before first paint so repeat visits never flash the intro overlay
+// runs before first paint so repeat visits (and the admin) never flash the intro
 const introSkip =
-  'try{if(sessionStorage.getItem("senudi_intro_seen")||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.setAttribute("data-intro-done","")}catch(e){}';
+  'try{if(location.pathname.indexOf("/admin")===0||sessionStorage.getItem("senudi_intro_seen")||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.setAttribute("data-intro-done","")}catch(e){}';
 import { getContent } from "@/lib/content";
 import "./globals.css";
 
@@ -65,6 +66,7 @@ export default function RootLayout({
           </IntroProvider>
         </ThemeProvider>
         <SecretEntry />
+        <CursorRing />
         <div className="grain" aria-hidden="true" />
       </body>
     </html>

@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 
 // Lenis-driven smooth scrolling for the public site. When the visitor prefers
 // reduced motion we never instantiate Lenis, so scrolling (and the CSS
-// scroll-padding-top anchor offset) stays fully native.
+// scroll-padding-top anchor offset) stays fully native. The admin keeps
+// native scrolling as well.
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   useEffect(() => {
+    if (pathname?.startsWith("/admin")) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
@@ -24,7 +29,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       cancelAnimationFrame(frame);
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
 
   return <>{children}</>;
 }
