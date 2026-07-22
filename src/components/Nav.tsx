@@ -230,52 +230,24 @@ export function Nav({ profile }: { profile: Profile }) {
         } ${hidden && !open ? "-translate-y-full" : "translate-y-0"}`}
       >
         <nav className="relative mx-auto flex max-w-content items-center justify-between px-5 py-3.5 sm:px-8">
-          <div className="flex items-center gap-4">
-            <button
-              ref={menuBtnRef}
-              type="button"
-              aria-haspopup="dialog"
-              aria-expanded={open}
-              onClick={() => setOpen(true)}
-              className="flex items-center gap-2 py-2 font-mono text-xs uppercase tracking-[0.2em] text-ink"
+          <button
+            ref={menuBtnRef}
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2 py-2 font-mono text-xs uppercase tracking-[0.2em] text-ink"
+          >
+            <span
+              aria-hidden="true"
+              className={`inline-block text-sm leading-none transition-transform duration-300 ${
+                open ? "rotate-45" : ""
+              }`}
             >
-              <span
-                aria-hidden="true"
-                className={`inline-block text-sm leading-none transition-transform duration-300 ${
-                  open ? "rotate-45" : ""
-                }`}
-              >
-                +
-              </span>
-              Menu
-            </button>
-
-            <ul className="hidden items-center gap-1 lg:flex">
-              {links.map((l) => {
-                const id = l.href.slice(1);
-                return (
-                  <li key={l.href}>
-                    <a
-                      href={l.href}
-                      className={`group relative px-3 py-2 font-mono text-xs uppercase tracking-[0.2em] transition-colors ${
-                        active === id ? "text-ink" : "text-muted hover:text-ink"
-                      }`}
-                    >
-                      {l.label}
-                      <span
-                        aria-hidden="true"
-                        className={`absolute inset-x-3 bottom-0.5 h-px bg-ink transition-transform duration-300 ${
-                          active === id
-                            ? "scale-x-100"
-                            : "origin-left scale-x-0 group-hover:scale-x-100"
-                        }`}
-                      />
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+              +
+            </span>
+            Menu
+          </button>
 
           <a
             href="#top"
