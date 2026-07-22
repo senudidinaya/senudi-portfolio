@@ -168,3 +168,46 @@ body:has(.admin-theme) .grain {
   text-transform: uppercase;
   color: rgb(var(--muted));
 }
+
+/* Scanline-eroded display text (the nav wordmark): glyphs filled by a
+   repeating 1px vertical ink stripe clipped to the text. Fully static. */
+.dither-text {
+  color: transparent;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgb(var(--ink)) 0,
+    rgb(var(--ink)) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Menu overlay tones: the outer element captures the page palette, the inner
+   one flips it, so the same color utilities paint bg-on-ink inside the panel
+   in both themes. Two elements because a custom property can't reference the
+   value it overrides on the same node. */
+.tone-capture {
+  --tone-bg: var(--bg);
+  --tone-ink: var(--ink);
+}
+.tone-invert {
+  --bg: var(--tone-ink);
+  --ink: var(--tone-bg);
+  --line: var(--tone-bg);
+  --muted: var(--tone-bg);
+  --surface: var(--tone-ink);
+  --surface-2: var(--tone-ink);
+  --cool: var(--tone-bg); /* keeps :focus-visible readable on the panel */
+}
+
+/* Overlay section links: hover/focus hollows the glyphs to a 1px stroke */
+.menu-link {
+  transition: color 0.25s ease;
+}
+.menu-link:hover,
+.menu-link:focus-visible {
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(var(--ink));
+}
