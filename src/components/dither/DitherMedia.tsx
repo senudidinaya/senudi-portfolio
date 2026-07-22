@@ -16,6 +16,9 @@ type DitherMediaProps = {
   /** CSS px per dither cell */
   cell?: number;
   transition?: "materialize" | "none";
+  /** duotone = the dither IS the image; resolve = the dither is an entrance
+      that settles, then fades out to reveal the full-colour image beneath */
+  mode?: "duotone" | "resolve";
   breathe?: boolean;
   /** histogram stretch for low-contrast sources; disable when the crop
       leaves mostly midtones and the stretch amplifies them into texture */
@@ -54,12 +57,14 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       className,
       cell = 3,
       transition = "materialize",
+      mode = "duotone",
       breathe = false,
       autoContrast = true,
       videoAutoPlay = true,
     },
     ref
   ) {
+    const resolveMode = mode === "resolve";
     const wrapRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -74,6 +79,8 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       colOff: new Float32Array(0),
       phases: new Float32Array(0),
       ink: "#000",
+      bg: "#fff",
+      faded: false, // resolve mode: fade-out has begun (or finished)
       static: false,
       imgReady: false,
       sampled: false,
@@ -101,7 +108,8 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
 
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const vid = videoRef.current;
-      const useVideo = !!video && !reduced && transition !== "none";
+      // resolve mode never canvas-samples the video — the real element plays
+      const useVideo = !!video && !reduced && transition !== "none" && !resolveMode;
 
       s.static = reduced || transition === "none";
       s.cols = 0;
@@ -110,14 +118,27 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       s.started = false;
       s.settled = false;
       s.anim = null;
+      s.faded = false;
+      cvs.style.transition = "";
+      cvs.style.opacity = "";
+
+      if (resolveMode && s.static) {
+        // reduced motion (or transition="none"): show the colour <img>
+        // immediately and never paint the canvas
+        cvs.style.opacity = "0";
+        return;
+      }
 
       const img = new Image();
       img.decoding = "async";
       const hist = new Uint32Array(256);
 
-      function resolveInk() {
-        const v = getComputedStyle(wrap!).getPropertyValue("--ink").trim();
-        if (v) s.ink = `rgb(${v.split(/\s+/).join(",")})`;
+      function resolveTones() {
+        const cs = getComputedStyle(wrap!);
+        const i = cs.getPropertyValue("--ink").trim();
+        if (i) s.ink = `rgb(${i.split(/\s+/).join(",")})`;
+        const b = cs.getPropertyValue("--bg").trim();
+        if (b) s.bg = `rgb(${b.split(/\s+/).join(",")})`;
       }
 
       function sample() {
@@ -172,7 +193,14 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         const { cols, rows, lum, colOff, cellPx } = s;
         const lw = cellPx * LINE_W;
         const inset = (cellPx - lw) / 2;
-        ctx!.clearRect(0, 0, s.w, s.h);
+        if (resolveMode) {
+          // opaque backing — the colour image must not leak through the line
+          // gaps while the dither pass is still covering it
+          ctx!.fillStyle = s.bg;
+          ctx!.fillRect(0, 0, s.w, s.h);
+        } else {
+          ctx!.clearRect(0, 0, s.w, s.h);
+        }
         ctx!.fillStyle = s.ink;
         for (let c = 0; c < cols; c++) {
           const off = colOff[c];
@@ -240,6 +268,15 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         }
       }
 
+      // resolve mode: hand over to the colour layer. The transition is only
+      // ever attached here, right before the opacity change — attaching it
+      // statically would turn scramble's snap-to-visible into a 0.7s ramp.
+      function beginFade() {
+        s.faded = true;
+        cvs!.style.transition = "opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1)";
+        cvs!.style.opacity = "0";
+      }
+
       function frame(now: number) {
         s.raf = 0;
         if (!s.inView) return;
@@ -256,7 +293,15 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         if (s.anim) {
           const live = setOffsets(now);
           paint();
-          if (!live) s.settled = true;
+          if (!live) {
+            s.settled = true;
+            if (resolveMode) {
+              // settled → fade the canvas away; the rAF loop ends right here
+              // (zero idle cost), the CSS transition carries the reveal
+              beginFade();
+              return;
+            }
+          }
           schedule();
           return;
         }
@@ -270,7 +315,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
           return;
         }
 
-        if (breathe && !s.static && s.settled) {
+        if (breathe && !s.static && s.settled && !s.faded) {
           if (now - s.lastBreathe >= BREATHE_FRAME_MS) {
             s.lastBreathe = now;
             setOffsets(now);
@@ -353,9 +398,18 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       };
       img.src = src;
 
-      resolveInk();
+      resolveTones();
       s.play = schedule;
       s.vidCtl = (on) => {
+        if (resolveMode) {
+          // simple version (every manifest video is currently null): the
+          // visible <video> layer under the canvas plays directly, no
+          // canvas sampling; poster = the still, so pausing holds a frame
+          if (!vid || !s.inView) return;
+          if (on) vid.play().catch(() => {});
+          else vid.pause();
+          return;
+        }
         if (!useVideo || !vid || !s.inView) return;
         if (on) {
           vid.play().catch(() => {});
@@ -372,7 +426,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         ([entry]) => {
           s.inView = entry.isIntersecting;
           if (s.inView) {
-            if (useVideo && vid && videoAutoPlay) vid.play().catch(() => {});
+            if ((useVideo || resolveMode) && vid && videoAutoPlay) vid.play().catch(() => {});
             kick();
           } else {
             if (vid) vid.pause();
@@ -384,7 +438,11 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       io.observe(wrap);
 
       const mo = new MutationObserver(() => {
-        resolveInk();
+        resolveTones();
+        // once a fade-out has begun, keep the canvas's last frame — a later
+        // scramble repaints with the fresh tones anyway, and repainting an
+        // invisible (or mid-fade) canvas here would flash
+        if (s.faded) return;
         repaintCurrent();
       });
       mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
@@ -403,13 +461,21 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         s.vidCtl = null;
         img.onload = null;
       };
-    }, [s, src, video, cell, transition, breathe, autoContrast, videoAutoPlay]);
+    }, [s, src, video, cell, transition, resolveMode, breathe, autoContrast, videoAutoPlay]);
 
     useImperativeHandle(
       ref,
       () => ({
         scramble(duration = 150) {
           if (s.static || !s.settled || !s.inView || s.anim) return;
+          const cvs = canvasRef.current;
+          if (s.faded && cvs) {
+            // snap back over the colour layer with no ramp — the transition
+            // re-attaches when the settle fades out again
+            cvs.style.transition = "none";
+            cvs.style.opacity = "1";
+            s.faded = false;
+          }
           s.anim = { kind: "scramble", start: performance.now(), ms: duration };
           s.play?.();
         },
@@ -425,8 +491,40 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
 
     return (
       <div ref={wrapRef} className={`relative overflow-hidden bg-bg ${className ?? ""}`}>
-        <canvas ref={canvasRef} role="img" aria-label={alt} className="block h-full w-full" />
-        {video ? (
+        {resolveMode ? (
+          // the real image, revealed when the canvas above it fades out;
+          // it carries the accessible name in this mode
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={src}
+            alt={alt}
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : null}
+        {video && resolveMode ? (
+          <video
+            ref={videoRef}
+            src={video}
+            poster={src}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover"
+            aria-hidden="true"
+          />
+        ) : null}
+        {/* bg-bg in resolve mode covers the colour layers until the first
+            dither paint lands; it fades away with the canvas */}
+        <canvas
+          ref={canvasRef}
+          {...(resolveMode
+            ? { "aria-hidden": true as const }
+            : { role: "img", "aria-label": alt })}
+          className={`relative block h-full w-full ${resolveMode ? "bg-bg" : ""}`}
+        />
+        {video && !resolveMode ? (
           <video
             ref={videoRef}
             src={video}

@@ -23,7 +23,9 @@ export function FacetCard({ facet, index }: { facet: FacetMedia; index: number }
 
   function wake() {
     if (!finePointer()) return;
-    dither.current?.scramble();
+    // longer than the default 150ms — the shimmer has to read before the
+    // 0.7s resolve fade brings the colour back
+    dither.current?.scramble(400);
     dither.current?.playVideo();
   }
 
@@ -48,12 +50,12 @@ export function FacetCard({ facet, index }: { facet: FacetMedia; index: number }
       <div className="relative aspect-[2/3] overflow-hidden border border-line">
         <DitherMedia
           ref={dither}
+          mode="resolve"
           src={facet.image}
           video={facet.video}
           videoAutoPlay={false}
           alt={facet.alt}
           cell={2.5}
-          breathe
           className="absolute inset-0 h-full w-full"
         />
         <span className="absolute bottom-3 left-3">

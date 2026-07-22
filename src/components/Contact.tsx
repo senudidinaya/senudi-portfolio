@@ -54,7 +54,9 @@ export function Contact({
   }
 
   const fieldClass =
-    "w-full rounded-none border-0 border-b border-line bg-transparent px-0 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-ink focus:outline-none focus:ring-0";
+    // muted/60 not --line: the input rule is a meaningful boundary (WCAG 1.4.11),
+    // decorative hairlines elsewhere keep --line
+    "w-full rounded-none border-0 border-b border-muted/60 bg-transparent px-0 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-ink focus:outline-none focus:ring-0";
 
   return (
     <section id="contact" className="border-t border-line bg-bg px-5 py-28 sm:px-8 sm:py-40">

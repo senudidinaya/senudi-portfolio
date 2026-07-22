@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --bg: 178 164 128; /* tan paper */
-  --surface: 186 173 140;
-  --surface-2: 166 151 112;
-  --ink: 41 37 23; /* deep umber */
-  --muted: 64 58 40; /* darker than the design ramp suggests — 4.5:1 on --bg */
-  --line: 122 110 78;
-  --warm: 84 50 13; /* rust — 4.5:1 on --bg so small tags stay readable */
-  --cool: 46 57 61; /* storm */
-  --bridge: 38 62 42; /* moss */
+  --bg: 244 242 234; /* warm ivory */
+  --surface: 250 249 243;
+  --surface-2: 233 231 220;
+  --ink: 24 32 26; /* green-black — 14.87:1 on --bg */
+  --muted: 96 104 96; /* 5.14:1 on --bg, 5.46:1 on --surface (the skills band) */
+  --line: 214 212 198; /* decorative hairlines only — 1.33:1 */
+  --warm: 141 84 36; /* ochre — 5.47:1 on --bg so small tags stay readable */
+  --cool: 58 84 112; /* slate — 6.99:1 on --bg */
+  --bridge: 22 101 68; /* pine green, the primary accent — 6.29:1 on --bg */
 }
 
 .dark {
-  --bg: 33 30 19;
-  --surface: 43 39 25;
-  --surface-2: 55 50 32;
-  --ink: 193 180 143;
-  --muted: 155 144 110; /* 4.5:1 even on --surface (the skills band) */
-  --line: 82 74 49;
-  --warm: 209 157 89;
-  --cool: 143 161 157;
-  --bridge: 133 171 131;
+  --bg: 17 22 19;
+  --surface: 24 30 26;
+  --surface-2: 33 41 36;
+  --ink: 235 233 224; /* 15.04:1 on --bg */
+  --muted: 158 166 156; /* 7.31:1 on --bg, 6.77:1 on --surface (the skills band) */
+  --line: 52 60 54; /* decorative hairlines only — 1.61:1 */
+  --warm: 212 165 100; /* 8.16:1 on --bg */
+  --cool: 138 164 192; /* 7.10:1 on --bg */
+  --bridge: 104 200 150; /* luminous green — 8.96:1 on --bg */
 }
 
 /* Admin dashboard palette — scoped to the /admin editor only, so the public

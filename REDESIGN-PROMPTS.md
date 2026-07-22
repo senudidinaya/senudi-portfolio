@@ -22,11 +22,20 @@ footage").
 
 ## Design north star (applies to every phase)
 
-- **Two tones carry the site.** Light theme: tan paper background, deep umber ink. Dark theme:
-  the exact inversion (umber paper, tan ink). All imagery is dithered into those two tones.
-- **Micro-accents only.** `warm` / `cool` / `bridge` survive exclusively as tints on small mono
-  labels and hairline details (a tinted word, a status dot, THE ASK / THE BUILD tags) — never as
-  fills or large surfaces. The "between two worlds" story lives in typography, not color fields.
+- **v3 COURSE CORRECTION (2026-07-22) — supersedes the two-tone rule below.** The shipped
+  all-duotone build was judged ugly: imagery read as colorless noise and the khaki palette felt
+  wrong. Standing rules now: (1) a **green-anchored editorial palette** — warm ivory paper, deep
+  green-black ink, pine green (`--bridge`) as the primary accent (green is Senudi's lucky color),
+  `warm`/`cool` as secondary tints; dark theme is deep green-charcoal with a luminous green.
+  (2) **Dither is a transition, not a destination** — imagery materializes through the
+  vertical-line dither and then *resolves into the full-colour illustration*; the steady state of
+  every image is clear and colorful. Small dither accents (wordmark erosion, noise ticks,
+  preloader) remain. PHASE 9 applies this correction to the shipped build.
+- ~~Two tones carry the site~~ (superseded): the historical duotone rule that phases 0–8 were
+  written against; kept for context since those phase texts reference it.
+- **Micro-accents only** (amended): `bridge` green is now allowed as a confident accent — tinted
+  display words, the selection color, link hovers, the monogram — while `warm` / `cool` stay as
+  tints on small labels and single words. Still no huge flat color fields.
 - **Type system:** Newsreader serif for display (UPPERCASE, font-light, tight tracking) and for
   italic captions; IBM Plex Mono for labels, markers, counters, meta; IBM Plex Sans for body.
 - **Signature motion:** images never fade in — they **materialize column by column** through the
@@ -297,6 +306,52 @@ DO:
 CONSTRAINTS: No admin/lib/schema changes; TypeScript strict.
 
 VERIFY: `npm run build` passes; /og.jpg is exactly 1200×630 in the site duotone with the bridge clearly visible; favicon shows in the tab. After deploy, check the URL in opengraph.xyz or LinkedIn Post Inspector. Commit "phase 8: launch kit".
+```
+
+---
+
+## PHASE 9 — Colour correction: green editorial + resolve-to-colour imagery
+
+```text
+CONTEXT: Next.js 14 App Router portfolio with the full dithered redesign shipped and committed (phases 0–8 plus the 6.5 menu retrofit). Current state, verified by code audit:
+- Palette: CSS variables as BARE RGB TRIPLETS (e.g. "178 164 128") in src/app/globals.css — :root is tan/umber (bg 178 164 128, ink 41 37 23, muted 64 58 40, line 122 110 78, warm 84 50 13, cool 46 57 61, bridge 38 62 42), .dark is the umber inversion. Tailwind maps them via rgb(var(--x) / <alpha-value>) — the bare-triplet format MUST be preserved. Both .admin-theme blocks override the same variables for /admin and must stay byte-for-byte untouched (including body:has(.admin-theme) .grain).
+- Dither engine: src/components/dither/DitherMedia.tsx — canvas-ONLY duotone renderer (no <img> ever in the DOM; the photo is an off-DOM luminance sampler). Props: src, video (string|null), alt, className, cell=3, transition="materialize"|"none", breathe=false, autoContrast=true, videoAutoPlay=true; forwardRef handle { scramble(duration?), playVideo(), pauseVideo() }. It paints vertical ink lines (fillStyle from getComputedStyle --ink, MutationObserver on <html> class repaints on theme flip) on a wrapper div with bg-bg; canvas is TRANSPARENT between lines. State lives in an `s` ref reset by the main useEffect on prop changes; the rAF loop self-terminates when idle; reduced motion sets s.static (paints the settled dither once, disables video).
+- Exactly two call sites: (1) src/components/hero/HeroBackdrop.tsx — full-viewport backdrop behind the hero text (breathe, autoContrast={false}, no cell prop) under bg-bg/30 (dark 40%) wash + top/bottom from-bg gradients, mounted when introDone; this is the main "ugly" culprit: ink-colored noise directly behind ink-colored centered text. (2) src/components/FacetCard.tsx — four persona cards (cell 2.5, breathe, videoAutoPlay={false}, hover/focus calls scramble()+playVideo(), leave calls pauseVideo()), mapped by src/components/Facets.tsx from src/data/media.ts.
+- Launch kit is BAKED duotone: scripts/make-og.mjs desaturates hero-bridge.jpg and maps grey to INK=[41,37,23]/PAPER=[178,164,128] for public/og.jpg, and renders src/app/apple-icon.png from an inline SVG hardcoding #b2a480/#292517; src/app/icon.svg uses the same two hex colors.
+- Menu overlay (Nav.tsx) flips the palette via .tone-capture/.tone-invert (swaps --bg/--ink; --cool→tone-bg for focus rings) — it assumes bg/ink stay a high-contrast pair. Utilities .dither-text (wordmark), the Nav overlay noise canvas, and the Preloader noise strip all read --ink at draw time and follow a palette swap automatically.
+Admin (src/app/admin/**), src/lib/**, src/data/content.ts and the zod schema are off-limits. framer-motion + lenis installed. Both themes and prefers-reduced-motion must keep working.
+
+GOAL: Two corrections, keeping all structure and motion: (1) replace the khaki duotone with a green-anchored editorial palette (green is the owner's lucky color); (2) imagery must END UP clear and full-colour — the dither becomes an entrance/hover transition that RESOLVES into the real illustration, and the hero text never sits on noise again.
+
+DO:
+1. Palette swap in src/app/globals.css — replace ONLY the :root and .dark values (bare triplets, keep variable names, keep the contrast-intent comments updated to match):
+   :root — --bg: 244 242 234 (warm ivory); --surface: 250 249 243; --surface-2: 233 231 220; --ink: 24 32 26 (green-black); --muted: 96 104 96; --line: 214 212 198; --warm: 141 84 36 (ochre); --cool: 58 84 112 (slate); --bridge: 22 101 68 (pine green — the primary accent).
+   .dark — --bg: 17 22 19; --surface: 24 30 26; --surface-2: 33 41 36; --ink: 235 233 224; --muted: 158 166 156; --line: 52 60 54; --warm: 212 165 100; --cool: 138 164 192; --bridge: 104 200 150 (luminous green).
+   These values are PRE-VERIFIED WCAG AA — copy them exactly, do not re-derive (measured ratios light/dark: ink-on-bg 14.87/15.04, muted-on-bg 5.14/7.31, muted-on-surface 5.46/6.77, warm-on-bg 5.47/8.16, cool-on-bg 6.99/7.10, bridge-on-bg 6.29/8.96); update the contrast-intent comments to these numbers. --line is decorative-hairline-only (1.33/1.61:1 — fine for dividers per WCAG 1.4.11), but the Contact form's border-b inputs are a meaningful boundary: give inputs a stronger rest border (border-muted/60, or dedicated 3:1 hues 141 140 131 light / 94 100 95 dark) while decorative rules keep --line. Do not touch the .admin-theme blocks.
+2. Add a "resolve" mode to DitherMedia (default stays "duotone" so nothing breaks silently):
+   - New prop: mode?: "duotone" | "resolve" (default "duotone").
+   - In resolve mode render a real <img src={src} alt={alt}> absolutely positioned under the canvas (inset-0, h-full w-full, object-cover); move the accessible name to the <img> and set the canvas aria-hidden (in duotone mode the canvas keeps role="img" as today).
+   - The canvas must paint an OPAQUE background in the current --bg tone behind its ink lines while dithering (today it is transparent between lines — the colour image must not leak through during the dither pass). Resolve --bg the same way --ink is resolved (getComputedStyle, re-resolved by the existing MutationObserver).
+   - Choreography: materialize sweep exactly as today → settle → the canvas fades to opacity 0 over ~0.7s with cubic-bezier(0.22, 1, 0.36, 1), revealing the colour image beneath → rAF loop fully stops (keep the zero-idle-cost invariant). Attach the opacity transition ONLY when initiating a fade-out (inline style or class toggle), never statically — a static transition would turn scramble's snap-to-visible into a 0.7s ramp. Keep the canvas's last frame while fading: once a fade-out has begun, the theme-flip MutationObserver callback must only re-resolve --ink/--bg and SKIP repaintCurrent() (a later scramble repaints with fresh colours anyway); without this, a theme toggle repaints mid-fade and every later flip repaints an invisible canvas.
+   - scramble(duration) in resolve mode: clear the transition and snap canvas opacity to 1 in the same frame, play the existing decaying scramble, then re-attach the transition and fade out again — the hover shimmer that ends in colour. Resolve-mode callers should pass a longer duration (see DO 4): the 150ms default is too brief to read before the 0.7s fade.
+   - breathe: only active during the dithered pass; a no-op once resolved.
+   - Reduced motion in resolve mode: render the colour <img> immediately and never paint the canvas (this branch differs from duotone mode's existing static-dither behaviour, which stays as-is).
+   - Video-ready: in resolve mode with a video set, after the resolve moment unhide the actual <video> (object-cover, muted loop playsInline poster={src}) as the visible layer instead of canvas-sampling it; playVideo()/pauseVideo() keep working. All manifest videos are currently null, so implement the simple version and note it.
+   - The mode state lives in the `s` ref like everything else (it resets on prop changes — fine).
+3. Hero recomposition — text on clean paper, image in a framed band just below the fold:
+   - DELETE src/components/hero/HeroBackdrop.tsx entirely: its import/usage in Hero.tsx, the aria-hidden wrapper, the bg-bg/30 wash and both from-bg gradient divs. The opening (status row, +++ PROLOGUE +++ marker, headline with its tinted words, tagline, CTAs, scroll cue) now sits on the clean ivory/charcoal background — the tinted headline words finally pop.
+   - Restructure Hero.tsx (it is a SERVER component — no hooks in it): the min-h-[100svh] flex column currently wraps BOTH <HeroOpening/> and <HeroMetrics/>; change it to wrap <HeroOpening/> ALONE, so the opening keeps filling the first viewport and the scroll cue stays pinned to the fold. Below that wrapper, still inside the section's max-w-content px container, render a NEW client component src/components/hero/HeroBridgeBand.tsx ("use client"), then <HeroMetrics/>. The band therefore lands between the scroll cue and the metrics, just below the first fold.
+   - HeroBridgeBand.tsx: mount the full-content-width .terminal-card frame UNCONDITIONALLY at aspect-[16/9] sm:aspect-[21/9] with a bg-surface inner fill — the fixed aspect ratio is what guarantees zero layout shift, and the fill keeps the frame from sitting empty during SSR and while the preloader plays (.terminal-card itself is transparent). Inside it, once useIntro().introDone (import useIntro from the Preloader module — the same gate the deleted HeroBackdrop used; NOT useIntroGate), render <DitherMedia mode="resolve" src={heroMedia.image} video={heroMedia.video} alt={heroMedia.alt} cell={3} />. DitherMedia's own IntersectionObserver (threshold 0.15) then makes it materialize when scrolled into view and resolve into the full-colour illustration.
+   - Keep the <link rel="preload" as="image"> in Hero.tsx.
+4. Facets go resolve: in src/components/FacetCard.tsx pass mode="resolve" (keep cell={2.5}, videoAutoPlay={false} and the hover wiring, but call scramble(400) instead of the bare scramble() — hover now shimmers visibly and settles back into colour). Drop the breathe prop here — FacetCard is the only site still passing it once HeroBackdrop is gone (the new band never has it). Labels, captions, alts unchanged.
+5. Launch kit refresh:
+   - scripts/make-og.mjs: remove the desaturate/normalise/linear duotone steps — full-colour center-crop of public/media/hero-bridge.jpg to exactly 1200×630, jpeg q80; ALSO delete the now-dead INK/PAPER constants and the a/b coefficient derivation at the top of the script; regenerate public/og.jpg.
+   - Recolor the monogram: paper #F4F2EA, mark #166544 (pine) in BOTH src/app/icon.svg and the inline SVG inside make-og.mjs that renders src/app/apple-icon.png; re-render apple-icon.png.
+6. Straggler sweep: grep src/ and scripts/ for the old baked tones — "#b2a480", "#292517", and the umber/tan triplets in ALL spacings (regex `41[, ]+37[, ]+23` and `178[, ]+164[, ]+128`, which also catches make-og.mjs's "41, 37, 23" comma-space style) — and fix anything found. The .dither-text wordmark, Nav overlay noise canvas, and Preloader noise strip stay (they read --ink at draw time and become green-black accents automatically). Grain overlay stays at 0.03.
+
+CONSTRAINTS: No admin/lib/schema/content changes. Bare RGB triplet format everywhere (Tailwind <alpha-value> depends on it). The .tone-invert menu flip must stay legible — the new bg/ink pair is deliberately high-contrast, verify visually in both themes. TypeScript strict. Transform/opacity/canvas-paint animations only; the engine's zero-idle-cost invariant holds (rAF stops after resolve).
+
+VERIFY: `npm run build` passes. Hero: headline sits on clean paper with nothing behind the text; the bridge band dithers in and RESOLVES to the full-colour illustration. Facet cards resolve to colourful illustrations; hover briefly re-scrambles then returns to colour. Dark theme reads as green-charcoal with luminous green accents; menu overlay legible in both themes; ::selection is now green-tinted. Reduced motion: colour images shown immediately, everything static. /og.jpg is full colour at 1200×630; favicon + apple icon show the pine monogram. Contrast: muted/warm/cool/bridge ≥ 4.5:1 on bg in both themes. QA matrix {light, dark} × {375px, 1440px} × {reduced-motion on, off}: no overflow, no invisible text, no stuck canvases. Commit "phase 9: green editorial + resolve-to-colour imagery".
 ```
 
 ---
