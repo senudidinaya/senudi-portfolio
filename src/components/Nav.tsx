@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
+  useReducedMotion,
   useScroll,
   type Variants,
 } from "framer-motion";
@@ -12,26 +13,18 @@ import { ThemeToggle } from "./ThemeToggle";
 import { getLenis } from "./motion/SmoothScroll";
 import type { Profile } from "@/data/content";
 
-const links = [
+// shared with ChapterRail so the chapter ticks never drift from the nav
+export const links = [
   { href: "#about", label: "About" },
   { href: "#skills", label: "Skills" },
   { href: "#work", label: "Work" },
   { href: "#contact", label: "Contact" },
 ];
 
-// the panel wipes down from the top edge; close reverses faster
-const panel: Variants = {
-  closed: {
-    y: "-100%",
-    transition: { duration: 0.35, ease: [0.76, 0, 0.24, 1] },
-  },
-  open: { y: "0%", transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1] } },
-};
-
-// section links rise out of their masks once the wipe has landed
+// section links rise out of their masks as the texture wipe clears
 const linkList: Variants = {
   closed: {},
-  open: { transition: { delayChildren: 0.55, staggerChildren: 0.05 } },
+  open: { transition: { delayChildren: 0.4, staggerChildren: 0.05 } },
 };
 
 const linkItem: Variants = {
@@ -59,13 +52,16 @@ export function Nav({ profile }: { profile: Profile }) {
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
+  const [wipe, setWipe] = useState(false);
   const lastY = useRef(0);
   const menuBtnRef = useRef<HTMLButtonElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const noiseRef = useRef<HTMLCanvasElement>(null);
+  const wipeRef = useRef<HTMLCanvasElement>(null);
   const { scrollYProgress } = useScroll();
   const { resolvedTheme } = useTheme();
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -193,6 +189,84 @@ export function Nav({ profile }: { profile: Profile }) {
     return () => cancelAnimationFrame(raf);
   }, [open, resolvedTheme]);
 
+  // arm the one-shot texture wipe on open (skipped under reduced motion)
+  useEffect(() => {
+    if (!open || reduce) {
+      setWipe(false);
+      return;
+    }
+    setWipe(true);
+  }, [open, reduce]);
+
+  // a single left-to-right column sweep across the panel, then the canvas is
+  // removed. Reuses the local Bayer/flick recipe; the reveal hands off to the
+  // link stagger (delayChildren 0.4s) as it clears. Menu only — never the
+  // preloader, where repeating the trick would devalue it.
+  useEffect(() => {
+    if (!wipe) return;
+    const cvs = wipeRef.current;
+    const ctx = cvs?.getContext("2d");
+    if (!cvs || !ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    cvs.width = Math.round(W * dpr);
+    cvs.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // the panel is tone-inverted, so its fill is the page ink and its text the
+    // page bg — read them straight from this (non-inverted) canvas context
+    const cs = getComputedStyle(cvs);
+    const rgb = (v: string, fallback: string) => {
+      const raw = cs.getPropertyValue(v).trim();
+      return raw ? `rgb(${raw.split(/\s+/).join(",")})` : fallback;
+    };
+    const cover = rgb("--ink", "#000");
+    const speck = rgb("--bg", "#fff");
+
+    const CELL = 8;
+    const FRONT = 5; // frontier band width, in columns
+    const cols = Math.ceil(W / CELL);
+    const DUR = 430;
+    let raf = 0;
+    let tick = 0;
+    const t0 = performance.now();
+
+    const frame = (now: number) => {
+      const t = now - t0;
+      const p = Math.min(1, t / DUR);
+      // carry the front past the last column so the panel fully clears
+      const front = p * (cols + FRONT);
+      tick++;
+      ctx.clearRect(0, 0, W, H);
+      const start = Math.floor(front);
+      if (start < cols) {
+        ctx.fillStyle = cover;
+        ctx.fillRect(start * CELL, 0, W - start * CELL, H);
+      }
+      // print texture just behind the front
+      ctx.fillStyle = speck;
+      const a = Math.max(0, start - FRONT);
+      for (let c = a; c < start && c < cols; c++) {
+        const x = c * CELL;
+        for (let r = 0; r * CELL < H; r++) {
+          const th = (BX[c & 3] * 4 + BY[r & 3] + 0.5) / 16;
+          if (flick(c * 7 + r, tick) < th * 0.5) {
+            ctx.fillRect(x + CELL * 0.3, r * CELL, CELL * 0.4, CELL * 0.55);
+          }
+        }
+      }
+      if (t >= DUR) {
+        setWipe(false);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [wipe]);
+
   // close first, then scroll — the html overflow lock has to lift before the
   // page can move, hence the deferrals
   const choose = (href: string) => {
@@ -273,10 +347,10 @@ export function Nav({ profile }: { profile: Profile }) {
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
-            variants={panel}
-            initial="closed"
-            animate="open"
-            exit="closed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduce ? 0 : 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="tone-capture fixed inset-0 z-[70]"
           >
             <div
@@ -411,6 +485,15 @@ export function Nav({ profile }: { profile: Profile }) {
                 />
               </div>
             </div>
+
+            {/* one-shot signal wipe over the whole panel; removes itself */}
+            {wipe && (
+              <canvas
+                ref={wipeRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-10 h-full w-full"
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

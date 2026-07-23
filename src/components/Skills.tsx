@@ -40,7 +40,7 @@ export function Skills({ skills }: { skills: SiteContent["skills"] }) {
   return (
     <section
       id="skills"
-      className="overflow-hidden border-y border-line bg-surface px-5 py-28 sm:px-8 sm:py-40"
+      className="overflow-hidden border-y border-line bg-surface px-5 py-14 sm:px-8 sm:py-20"
     >
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="02 / Skills" title="Two sides, one workflow" />
@@ -53,8 +53,12 @@ export function Skills({ skills }: { skills: SiteContent["skills"] }) {
         </MotionReveal>
       </div>
 
-      {/* full-bleed ticker of every skill in the three groups */}
-      <div className="marquee -mx-5 mt-14 overflow-hidden border-y border-line py-3.5 sm:-mx-8">
+      {/* full-bleed ticker of every skill in the three groups. w-screen +
+          negative-margin centring reaches the viewport edges; the section's
+          own overflow-hidden and the global overflow-x:clip absorb the
+          ~half-scrollbar overshoot under classic Windows scrollbars (the
+          marquee edges are always in motion, so it never reads). */}
+      <div className="marquee mx-[calc(50%-50vw)] mt-14 w-screen overflow-hidden border-y border-line py-3.5">
         <div className="marquee-track flex w-max">
           <span className="whitespace-pre font-mono text-xs uppercase tracking-[0.25em] text-muted">
             {line}

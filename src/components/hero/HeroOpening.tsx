@@ -113,7 +113,7 @@ export function HeroOpening({
         custom={0.95}
         className="mb-6 flex w-min flex-col items-center gap-2"
       >
-        <span className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-muted">
+        <span className="bg-bg px-2 py-0.5 font-mono text-[0.62rem] uppercase tracking-[0.3em] text-muted">
           Scroll
         </span>
         <span className="relative block h-10 w-px overflow-hidden bg-line" aria-hidden="true">

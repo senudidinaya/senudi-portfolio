@@ -44,7 +44,7 @@ export function SectionHeading({
       <motion.span
         aria-hidden="true"
         style={{ y, WebkitTextStroke: "1.5px rgb(var(--line))" }}
-        className="pointer-events-none absolute -top-6 right-0 select-none font-serif text-[clamp(7rem,18vw,13rem)] font-light leading-none text-transparent opacity-[0.12]"
+        className="pointer-events-none absolute -top-14 right-0 select-none font-serif text-[clamp(7rem,18vw,13rem)] font-light leading-none text-transparent opacity-[0.16] sm:-top-20"
       >
         {index}
       </motion.span>

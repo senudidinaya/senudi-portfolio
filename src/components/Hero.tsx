@@ -17,9 +17,13 @@ export function Hero({
       {/* the dither engine reads this from cache, so fetch it with the page */}
       <link rel="preload" as="image" href={heroMedia.image} />
 
-      <div className="mx-auto w-full max-w-content px-5 sm:px-8">
-        {/* the opening owns the first viewport; the scroll cue pins to the fold */}
-        <div className="flex min-h-[100svh] flex-col">
+      {/* the opening owns the first viewport; z-10 stacks it (and the
+          clickable scroll cue) above the plate that slides up underneath —
+          framer's entrance animations spawn stacking contexts, so the whole
+          column has to lift as one unit, not a chip-level z-index */}
+      <div className="relative z-10 mx-auto w-full max-w-content px-5 sm:px-8">
+        {/* the crest peeks above the fold — that peek is the scroll cue's payoff */}
+        <div className="flex min-h-[88svh] flex-col">
           <HeroOpening
             openTo={profile.openTo}
             location={profile.location}
@@ -27,11 +31,17 @@ export function Hero({
             resumeFile={profile.resumeFile}
           />
         </div>
-        <HeroBridgeBand />
+      </div>
+
+      {/* full-bleed chapter plate; slides up under the scroll cue via its -mt */}
+      <HeroBridgeBand />
+
+      {/* metrics as a caption plate cutting across the plate's bottom edge */}
+      <div className="relative z-10 mx-auto -mt-12 w-full max-w-content px-5 sm:-mt-16 sm:px-8">
         <HeroMetrics metrics={metrics} />
       </div>
 
-      <div className="mx-auto w-full max-w-content px-5 py-20 sm:px-8 sm:py-24">
+      <div className="mx-auto w-full max-w-content px-5 pb-16 pt-12 sm:px-8 sm:pb-20 sm:pt-14">
         <TranslationPanel theBridge={profile.theBridge} />
       </div>
     </section>

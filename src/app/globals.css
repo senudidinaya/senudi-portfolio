@@ -60,6 +60,10 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  /* full-bleed bands (the Skills marquee, the hero plate) may overshoot by up
+     to a scrollbar width; clip on x keeps the page from ever scrolling
+     sideways while leaving vertical scroll and sticky/fixed intact */
+  overflow-x: clip;
 }
 
 body {
@@ -67,6 +71,7 @@ body {
   color: rgb(var(--ink));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {

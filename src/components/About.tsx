@@ -15,11 +15,11 @@ export function About({
   const [lead, ...rest] = about.paragraphs;
 
   return (
-    <section id="about" className="px-5 py-28 sm:px-8 sm:py-40">
+    <section id="about" className="px-5 py-16 sm:px-8 sm:py-24">
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="01 / About" title="Who I am" />
 
-        <div className="mt-14 sm:mt-20">
+        <div className="mt-10 sm:mt-12">
           {lead && (
             <MotionReveal>
               <p className="max-w-3xl font-serif text-2xl font-light leading-snug text-ink sm:text-3xl">
@@ -38,7 +38,7 @@ export function About({
             </div>
           )}
 
-          <div className="mt-16 border-b border-line sm:mt-20">
+          <div className="mt-12 border-b border-line">
             {education.map((e, i) => (
               <MotionReveal key={e.school} delay={i * 0.07}>
                 <Row meta={e.timeframe}>

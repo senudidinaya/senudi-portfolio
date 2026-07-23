@@ -6,6 +6,11 @@ export type DitherMediaHandle = {
   scramble: (duration?: number) => void;
   playVideo: () => void;
   pauseVideo: () => void;
+  /** scrub mode only: drive the left-to-right print from scroll (0..1) */
+  setProgress: (p: number) => void;
+  /** arm the pointer wake — only ripples once the colour has locked */
+  enableWake: () => void;
+  disableWake: () => void;
 };
 
 type DitherMediaProps = {
@@ -15,7 +20,7 @@ type DitherMediaProps = {
   className?: string;
   /** CSS px per dither cell */
   cell?: number;
-  transition?: "materialize" | "none";
+  transition?: "materialize" | "none" | "scrub";
   /** duotone = the dither IS the image; resolve = the dither is an entrance
       that settles, then fades out to reveal the full-colour image beneath */
   mode?: "duotone" | "resolve";
@@ -36,6 +41,16 @@ const BREATHE_AMP = 0.02;
 const BREATHE_PERIOD_MS = 7000;
 const BREATHE_FRAME_MS = 85; // ~12fps
 const VIDEO_FRAME_MS = 42; // ~24fps
+
+// scrub print
+const FRONTIER = 8; // columns of live flicker just behind the print front
+const LOCK_P = 0.98; // progress at which the colour "signal locks"
+
+// pointer wake
+const WAKE_PEAK = NOISE_AMP * 0.35; // deposited energy at the cursor
+const WAKE_RADIUS = 14; // columns of gaussian spread each side
+const WAKE_DECAY = 0.88; // per-frame energy falloff
+const WAKE_FLOOR = 0.02; // energy below which a column heals and the loop ends
 
 // 4x4 Bayer split into a coarse column term and a fine row term, so the
 // threshold tracks x first and tone reads as vertical line density.
@@ -65,6 +80,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
     ref
   ) {
     const resolveMode = mode === "resolve";
+    const scrubMode = transition === "scrub";
     const wrapRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -78,6 +94,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       lum: new Float32Array(0),
       colOff: new Float32Array(0),
       phases: new Float32Array(0),
+      energy: new Float32Array(0), // per-column wake energy
       ink: "#000",
       bg: "#fff",
       faded: false, // resolve mode: fade-out has begun (or finished)
@@ -87,6 +104,14 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       inView: false,
       started: false,
       settled: false,
+      // scrub
+      lastP: -1, // last progress applied (monotonic); re-applied on relayout
+      pendingP: 0, // progress awaiting the next coalesced paint
+      locked: false, // scrub reached LOCK_P; colour is showing
+      scrubRaf: 0,
+      // wake
+      waking: false,
+      wakeRaf: 0,
       anim: null as null | { kind: "in" | "scramble"; start: number; ms: number },
       raf: 0,
       tick: 0,
@@ -94,6 +119,8 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       lastSample: 0,
       play: null as null | (() => void),
       vidCtl: null as null | ((on: boolean) => void),
+      applyProgress: null as null | ((p: number) => void),
+      wakeCtl: null as null | ((on: boolean) => void),
     }).current;
 
     useEffect(() => {
@@ -119,12 +146,16 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       s.settled = false;
       s.anim = null;
       s.faded = false;
+      s.lastP = -1;
+      s.locked = false;
+      s.waking = false;
       cvs.style.transition = "";
       cvs.style.opacity = "";
+      cvs.style.backgroundColor = "";
 
       if (resolveMode && s.static) {
         // reduced motion (or transition="none"): show the colour <img>
-        // immediately and never paint the canvas
+        // immediately and never paint the canvas — covers scrub too
         cvs.style.opacity = "0";
         return;
       }
@@ -266,6 +297,10 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
           cancelAnimationFrame(s.raf);
           s.raf = 0;
         }
+        if (s.scrubRaf) {
+          cancelAnimationFrame(s.scrubRaf);
+          s.scrubRaf = 0;
+        }
       }
 
       // resolve mode: hand over to the colour layer. The transition is only
@@ -326,6 +361,179 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         // nothing left to animate — the loop ends here, zero idle cost
       }
 
+      // ------------------------------------------------------------------
+      // scrub: scroll drives the same left-to-right print, one coalesced
+      // paint per frame, monotonic (reverse scroll holds), locks to colour.
+      // ------------------------------------------------------------------
+      function paintScrub() {
+        s.scrubRaf = 0;
+        if (!s.sampled) return;
+        const { cols, colOff } = s;
+        const p = s.pendingP;
+        s.tick++;
+        const edge = FRONTIER / cols;
+        for (let c = 0; c < cols; c++) {
+          const cp = c / cols;
+          if (cp > p) colOff[c] = -9; // ahead of the front — unstarted
+          else if (cp > p - edge) colOff[c] = (flick(c, s.tick) * 2 - 1) * NOISE_AMP;
+          else colOff[c] = 0; // settled
+        }
+        paint();
+      }
+
+      function lockToColour() {
+        if (s.locked) return;
+        s.locked = true;
+        s.settled = true;
+        if (s.scrubRaf) {
+          cancelAnimationFrame(s.scrubRaf);
+          s.scrubRaf = 0;
+        }
+        // one final fully-settled paint so the fade never starts from a frame
+        // the delta guard skipped, then hand over to the colour layer once
+        if (s.sampled) {
+          s.colOff.fill(0);
+          paint();
+        }
+        beginFade();
+      }
+
+      function applyProgress(p: number) {
+        if (s.static || s.locked) return;
+        if (p < 0) p = 0;
+        else if (p > 1) p = 1;
+        if (p < s.lastP) return; // MONOTONIC — reverse scroll holds
+        if (p >= LOCK_P) {
+          s.lastP = 1;
+          s.started = true;
+          lockToColour();
+          return;
+        }
+        // skip micro-moves smaller than a single column
+        if (s.started && p - s.lastP < 1 / Math.max(1, s.cols)) return;
+        s.lastP = p;
+        s.started = true;
+        s.pendingP = p;
+        if (!s.scrubRaf && s.inView) s.scrubRaf = requestAnimationFrame(paintScrub);
+      }
+
+      // re-apply the stored progress with one coalesced paint (relayout,
+      // img load, remount, or coming back into view)
+      function reapplyProgress() {
+        if (s.lastP < 0 || s.locked) return;
+        s.pendingP = s.lastP;
+        if (!s.scrubRaf && s.inView) s.scrubRaf = requestAnimationFrame(paintScrub);
+      }
+
+      // ------------------------------------------------------------------
+      // wake: pointer deposits gaussian energy per column; a private paint
+      // path clears each energized column (colour shows through) and inks
+      // only the dither lines, healing behind the cursor. Own rAF, own
+      // termination — returns to zero when the last energy drains.
+      // ------------------------------------------------------------------
+      function depositEnergy(clientX: number) {
+        if (s.cols < 2) return;
+        const rect = cvs!.getBoundingClientRect();
+        if (!rect.width) return;
+        const col = Math.floor(((clientX - rect.left) / rect.width) * s.cols);
+        const sig2 = 2 * (WAKE_RADIUS / 2) ** 2;
+        const lo = Math.max(0, col - WAKE_RADIUS);
+        const hi = Math.min(s.cols - 1, col + WAKE_RADIUS);
+        for (let c = lo; c <= hi; c++) {
+          const d = c - col;
+          const e = s.energy[c] + WAKE_PEAK * Math.exp(-(d * d) / sig2);
+          s.energy[c] = e > 1 ? 1 : e;
+        }
+        if (!s.waking) startWake();
+      }
+
+      function startWake() {
+        s.waking = true;
+        // the canvas element carries an opaque bg-bg class and resolve paint()
+        // fills an opaque backing — neither lets colour through. Clear the old
+        // plate to transparent BEFORE showing it, so no dither flashes.
+        cvs!.style.transition = "none";
+        cvs!.style.backgroundColor = "transparent";
+        ctx!.clearRect(0, 0, s.w, s.h);
+        cvs!.style.opacity = "1";
+        if (!s.wakeRaf) s.wakeRaf = requestAnimationFrame(wakeFrame);
+      }
+
+      function wakeFrame() {
+        s.wakeRaf = 0;
+        const { cols, rows, lum, cellPx, energy } = s;
+        const lw = cellPx * LINE_W;
+        const inset = (cellPx - lw) / 2;
+        s.tick++;
+        ctx!.fillStyle = s.ink;
+        let maxE = 0;
+        for (let c = 0; c < cols; c++) {
+          const e = energy[c];
+          if (e < WAKE_FLOOR) {
+            if (e > 0) {
+              // just drained — heal this column back to pure colour
+              ctx!.clearRect(c * cellPx, 0, cellPx + 1, s.h);
+              energy[c] = 0;
+            }
+            continue;
+          }
+          ctx!.clearRect(c * cellPx, 0, cellPx + 1, s.h);
+          const bx = BX[c & 3] * 4;
+          const x = c * cellPx + inset;
+          const off = (flick(c, s.tick) * 2 - 1) * e;
+          for (let r = 0; r < rows; r++) {
+            const th = (bx + BY[r & 3] + 0.5) / 16;
+            if (lum[r * cols + c] < th + off) {
+              ctx!.fillRect(x, r * cellPx, lw, cellPx + 0.3);
+            }
+          }
+          energy[c] = e * WAKE_DECAY;
+          if (energy[c] > maxE) maxE = energy[c];
+        }
+        if (maxE < WAKE_FLOOR) {
+          endWake();
+          return;
+        }
+        s.wakeRaf = requestAnimationFrame(wakeFrame);
+      }
+
+      function endWake() {
+        if (s.wakeRaf) {
+          cancelAnimationFrame(s.wakeRaf);
+          s.wakeRaf = 0;
+        }
+        s.waking = false;
+        s.energy.fill(0);
+        // fully healed → colour is showing. Snap back to the resting locked
+        // state (invisible canvas, opaque backing restored) with no flash:
+        // content is already transparent, so opacity 0 is a visual no-op.
+        ctx!.clearRect(0, 0, s.w, s.h);
+        cvs!.style.transition = "none";
+        cvs!.style.opacity = "0";
+        cvs!.style.backgroundColor = "";
+      }
+
+      let wakeMove: ((e: PointerEvent) => void) | null = null;
+      function setWake(on: boolean) {
+        if (on) {
+          if (wakeMove) return;
+          const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+          if (!fine || reduced) return;
+          wakeMove = (e: PointerEvent) => {
+            // never before the colour lock, never off-screen
+            if (!s.settled || !s.faded || !s.inView) return;
+            depositEnergy(e.clientX);
+          };
+          wrap!.addEventListener("pointermove", wakeMove, { passive: true });
+        } else {
+          if (wakeMove) {
+            wrap!.removeEventListener("pointermove", wakeMove);
+            wakeMove = null;
+          }
+          if (s.waking) endWake();
+        }
+      }
+
       function kick() {
         if (!s.imgReady || !s.cols) return;
         if (s.static) {
@@ -337,6 +545,12 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
           return;
         }
         if (!s.inView) return;
+        if (scrubMode) {
+          // no clock-driven sweep — scroll owns the print; just re-settle the
+          // current scrub frame (e.g. after coming back into view)
+          reapplyProgress();
+          return;
+        }
         if (!s.started) {
           s.started = true;
           s.anim = { kind: "in", start: performance.now(), ms: 0 };
@@ -349,6 +563,10 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
       function repaintCurrent() {
         if (!s.sampled || !s.started) return;
         if (!s.settled && !s.static) return;
+        if (scrubMode && !s.locked) {
+          reapplyProgress();
+          return;
+        }
         s.colOff.fill(0);
         paint();
       }
@@ -376,6 +594,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         s.rows = rows;
         if (s.lum.length !== cols * rows) s.lum = new Float32Array(cols * rows);
         if (s.colOff.length !== cols) s.colOff = new Float32Array(cols);
+        if (s.energy.length !== cols) s.energy = new Float32Array(cols);
         if (s.phases.length !== cols) {
           s.phases = new Float32Array(cols);
           for (let i = 0; i < cols; i++) s.phases[i] = Math.random() * Math.PI * 2;
@@ -400,6 +619,8 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
 
       resolveTones();
       s.play = schedule;
+      s.applyProgress = applyProgress;
+      s.wakeCtl = setWake;
       s.vidCtl = (on) => {
         if (resolveMode) {
           // simple version (every manifest video is currently null): the
@@ -430,6 +651,7 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
             kick();
           } else {
             if (vid) vid.pause();
+            if (s.waking) endWake();
             stop();
           }
         },
@@ -439,10 +661,9 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
 
       const mo = new MutationObserver(() => {
         resolveTones();
-        // once a fade-out has begun, keep the canvas's last frame — a later
-        // scramble repaints with the fresh tones anyway, and repainting an
-        // invisible (or mid-fade) canvas here would flash
-        if (s.faded) return;
+        // once a fade-out has begun (or a wake is rippling) keep the canvas's
+        // current frame — repainting an invisible or mid-wake canvas flashes
+        if (s.faded || s.waking) return;
         repaintCurrent();
       });
       mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
@@ -456,18 +677,25 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         ro.disconnect();
         io.disconnect();
         mo.disconnect();
+        setWake(false);
         stop();
+        if (s.wakeRaf) {
+          cancelAnimationFrame(s.wakeRaf);
+          s.wakeRaf = 0;
+        }
         s.play = null;
         s.vidCtl = null;
+        s.applyProgress = null;
+        s.wakeCtl = null;
         img.onload = null;
       };
-    }, [s, src, video, cell, transition, resolveMode, breathe, autoContrast, videoAutoPlay]);
+    }, [s, src, video, cell, transition, scrubMode, resolveMode, breathe, autoContrast, videoAutoPlay]);
 
     useImperativeHandle(
       ref,
       () => ({
         scramble(duration = 150) {
-          if (s.static || !s.settled || !s.inView || s.anim) return;
+          if (s.static || !s.settled || !s.inView || s.anim || s.waking) return;
           const cvs = canvasRef.current;
           if (s.faded && cvs) {
             // snap back over the colour layer with no ramp — the transition
@@ -484,6 +712,15 @@ export const DitherMedia = forwardRef<DitherMediaHandle, DitherMediaProps>(
         },
         pauseVideo() {
           s.vidCtl?.(false);
+        },
+        setProgress(p: number) {
+          s.applyProgress?.(p);
+        },
+        enableWake() {
+          s.wakeCtl?.(true);
+        },
+        disableWake() {
+          s.wakeCtl?.(false);
         },
       }),
       [s]

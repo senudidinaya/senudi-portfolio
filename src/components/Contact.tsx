@@ -59,7 +59,7 @@ export function Contact({
     "w-full rounded-none border-0 border-b border-muted/60 bg-transparent px-0 py-3 text-sm text-ink placeholder:text-muted/60 transition-colors focus:border-ink focus:outline-none focus:ring-0";
 
   return (
-    <section id="contact" className="border-t border-line bg-bg px-5 py-28 sm:px-8 sm:py-40">
+    <section id="contact" className="border-t border-line bg-bg px-5 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto max-w-content">
         <SectionHeading eyebrow="04 / Contact" title="Let's talk" />
 

@@ -1,4 +1,5 @@
 import { Nav } from "@/components/Nav";
+import { ChapterRail } from "@/components/ChapterRail";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Skills } from "@/components/Skills";
@@ -15,6 +16,7 @@ export default async function Home() {
   return (
     <>
       <Nav profile={c.profile} />
+      <ChapterRail />
       <main>
         <Hero profile={c.profile} metrics={c.metrics} />
         <About about={c.about} education={c.education} additional={c.additional} />
