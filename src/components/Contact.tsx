@@ -7,6 +7,7 @@ import type { Profile, SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
 import { MotionReveal } from "./motion/MotionReveal";
 import { Magnetic } from "./motion/Magnetic";
+import { BaseMap } from "./contact/BaseMap";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -70,6 +71,11 @@ export function Contact({
             the <em className="lowercase text-bridge">bridge</em>.
           </StatementLine>
         </div>
+
+        {/* base of operations — the site's final image before the footer */}
+        <MotionReveal className="mt-14 sm:mt-16">
+          <BaseMap location={profile.location} />
+        </MotionReveal>
 
         <div className="mt-16 grid gap-14 sm:mt-20 lg:grid-cols-[1fr_1.1fr]">
           <MotionReveal className="space-y-10">

@@ -216,3 +216,51 @@ body:has(.admin-theme) .grain {
   color: transparent;
   -webkit-text-stroke: 1px rgb(var(--ink));
 }
+
+/* Contact "base of operations" map: perpetual radar pulse + a barely-there
+   drift, both in SVG user space. BaseMap adds .map-paused on its wrapper when
+   the plate scrolls off-screen (IntersectionObserver) to stop the loops. The
+   ±24px drift is 1.5% of the 1600-unit viewBox width, kept in user units so it
+   is unaffected by transform-box. */
+@keyframes map-drift {
+  from {
+    transform: translateX(-24px);
+  }
+  to {
+    transform: translateX(24px);
+  }
+}
+@keyframes radar-ring {
+  0% {
+    r: 4px;
+    opacity: 0.55;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    r: 46px;
+    opacity: 0;
+  }
+}
+.map-drift {
+  animation: map-drift 45s ease-in-out infinite alternate;
+}
+.radar-ring {
+  animation: radar-ring 3.2s ease-out infinite;
+}
+.map-paused .map-drift,
+.map-paused .radar-ring {
+  animation-play-state: paused;
+}
+/* Reduced motion: glow + label stay, but the pulse rings are hidden and the
+   drift is neutralised (the global reduce block already freezes it, this keeps
+   it centred rather than parked at the -24px start). */
+@media (prefers-reduced-motion: reduce) {
+  .radar-ring {
+    display: none;
+  }
+  .map-drift {
+    transform: translateX(0);
+  }
+}
