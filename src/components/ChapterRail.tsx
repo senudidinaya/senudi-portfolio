@@ -48,6 +48,11 @@ export function ChapterRail() {
     else el.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Contact is the always-dark full-page scene: the theme-driven text/accent
+  // colors that work everywhere else can resolve near-invisible over it in
+  // light theme, so this chapter pins them to the dark-palette values instead.
+  const onScene = active === "contact";
+
   return (
     <nav
       aria-label="Chapters"
@@ -66,7 +71,13 @@ export function ChapterRail() {
             >
               <span
                 className={`font-mono text-[0.62rem] uppercase tracking-[0.3em] transition-colors duration-300 ${
-                  on ? "text-ink" : "text-muted/50 group-hover:text-muted"
+                  on
+                    ? onScene
+                      ? "text-[rgb(235,233,224)]"
+                      : "text-ink"
+                    : onScene
+                    ? "text-[rgb(158,166,156)]/50"
+                    : "text-muted/50 group-hover:text-muted"
                 }`}
               >
                 {String(i).padStart(2, "0")} {c.label}
@@ -74,7 +85,9 @@ export function ChapterRail() {
               <span
                 aria-hidden="true"
                 className={`h-px transition-all duration-300 ${
-                  on ? "w-6 bg-bridge" : "w-3 bg-line group-hover:w-4"
+                  on
+                    ? `w-6 ${onScene ? "bg-[rgb(104,200,150)]" : "bg-bridge"}`
+                    : "w-3 bg-line group-hover:w-4"
                 }`}
               />
             </a>
@@ -87,7 +100,9 @@ export function ChapterRail() {
           <motion.span
             aria-hidden="true"
             style={{ scaleY: scrollYProgress }}
-            className="absolute right-0 top-0 h-full w-px origin-top bg-bridge"
+            className={`absolute right-0 top-0 h-full w-px origin-top ${
+              onScene ? "bg-[rgb(104,200,150)]" : "bg-bridge"
+            }`}
           />
         )}
       </div>

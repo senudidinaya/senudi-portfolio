@@ -207,6 +207,22 @@ body:has(.admin-theme) .grain {
   --cool: var(--tone-bg); /* keeps :focus-visible readable on the panel */
 }
 
+/* Always-dark plate: pins every themeable variable to the .dark palette
+   verbatim, so a section reads as the night scene in both themes. Unlike
+   .tone-invert this isn't a swap — it's the same values whichever theme is
+   active, because a black cartographic plate has no light-theme counterpart. */
+.plate-dark {
+  --bg: 17 22 19;
+  --surface: 24 30 26;
+  --surface-2: 33 41 36;
+  --ink: 235 233 224;
+  --muted: 158 166 156;
+  --line: 52 60 54;
+  --warm: 212 165 100;
+  --cool: 138 164 192;
+  --bridge: 104 200 150;
+}
+
 /* Overlay section links: hover/focus hollows the glyphs to a 1px stroke */
 .menu-link {
   transition: color 0.25s ease;
