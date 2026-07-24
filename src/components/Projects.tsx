@@ -152,17 +152,12 @@ export function Projects({
 
         <MotionReveal>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted">
-            From teaching myself the .NET stack, to shipping for a global sales
-            team, to publishing research, to building on my own &mdash; here is
-            the path, in order.
+            Newest first &mdash; from what I&rsquo;m building now, back to the
+            self-taught .NET builds where it started.
           </p>
         </MotionReveal>
 
         <Timeline>
-          <TimelineItem dotClass="bg-cool">
-            <FoundationsCard foundations={foundations} />
-          </TimelineItem>
-
           {flagships.map((project, i) => (
             <TimelineItem
               key={project.title}
@@ -171,6 +166,10 @@ export function Projects({
               <ProjectCard project={project} />
             </TimelineItem>
           ))}
+
+          <TimelineItem dotClass="bg-muted">
+            <FoundationsCard foundations={foundations} />
+          </TimelineItem>
         </Timeline>
 
         <MotionReveal className="mt-16">
