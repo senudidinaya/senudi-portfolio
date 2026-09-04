@@ -22,7 +22,7 @@ export function HeroMetrics({ metrics }: { metrics: Metric[] }) {
   return (
     <motion.dl
       key={gated ? "gated" : "ssr"}
-      className="grid grid-cols-2 gap-x-6 gap-y-8 border border-line bg-bg/95 px-5 py-6 sm:grid-cols-4 sm:px-7 sm:py-7"
+      className="flex w-fit max-w-full flex-wrap gap-x-8 gap-y-8 border border-line bg-bg/95 px-5 py-6 sm:px-7 sm:py-7"
       initial={gated ? "hidden" : false}
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
       {...(!gated || introDone ? { whileInView: "visible" as const, viewport: { once: true, amount: 0.25 } } : {})}
