@@ -9,6 +9,9 @@ export type MediaAsset = {
   image: string;
   video: string | null;
   alt: string;
+  // scrubbed video only: a still matching frame 0, so the loading handover
+  // is invisible; `image` stays the standalone / reduced-motion still
+  poster?: string;
 };
 
 export type FacetMedia = MediaAsset & {
@@ -21,6 +24,16 @@ export const heroMedia: MediaAsset = {
   image: "/media/hero-bridge.jpg",
   video: null,
   alt: "Stylised illustration — a footbridge spanning from a forest ridge to a city skyline in morning fog",
+};
+
+// real footage, not a stylised study — a transparent cutout the hero scrubs
+// with scroll; the poster holds the frame while the webm buffers, the image
+// is what reduced-motion visitors get instead
+export const heroPortraitMedia: MediaAsset = {
+  image: "/media/portrait-cutout-still.webp",
+  poster: "/media/portrait-cutout-poster.webp",
+  video: "/media/portrait-cutout.webm",
+  alt: "Senudi turning to face the camera",
 };
 
 export const facets: FacetMedia[] = [
@@ -44,9 +57,9 @@ export const facets: FacetMedia[] = [
     key: "swim",
     label: "The Swimmer",
     caption: "Breaststroke — early lengths",
-    image: "/media/facet-swim.jpg",
+    image: "/media/facet-swim-alt.jpg",
     video: null,
-    alt: "Stylised illustration — breaststroke down a pool lane, seen from above",
+    alt: "Stylised illustration — a breaststroke swimmer surfacing head-on in a burst of white spray, lane rope blurred behind",
   },
   {
     key: "paint",

@@ -1,3 +1,5 @@
+"use client";
+
 import type { Project, SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
 import { MotionReveal } from "./motion/MotionReveal";
@@ -10,9 +12,19 @@ import { FoundationsStrip } from "./work/FoundationsStrip";
 // change is needed to add, remove, or reorder a project.
 const dotPalette = ["bg-bridge", "bg-bridge", "bg-cool", "bg-warm"];
 
-function FoundationsCard({ foundations }: { foundations: Project[] }) {
+function FoundationsCard({
+  foundations,
+  active,
+}: {
+  foundations: Project[];
+  active: boolean;
+}) {
   return (
-    <div className="border border-line p-6 sm:p-8">
+    <div
+      className={`border p-6 transition-colors duration-300 sm:p-8 ${
+        active ? "border-ink" : "border-line"
+      }`}
+    >
       <span className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
         2023 &ndash; 2024
       </span>
@@ -28,12 +40,27 @@ function FoundationsCard({ foundations }: { foundations: Project[] }) {
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({
+  project,
+  index,
+  active,
+}: {
+  project: Project;
+  index: number;
+  active: boolean;
+}) {
   return (
-    <article className="group grid gap-6 border border-line bg-transparent p-6 transition-colors duration-300 hover:bg-surface sm:p-8 lg:grid-cols-[1fr_1.4fr]">
+    <article
+      className={`group grid gap-6 border bg-transparent p-6 transition-colors duration-300 hover:bg-surface sm:p-8 lg:grid-cols-[1fr_1.4fr] ${
+        active ? "border-ink" : "border-line"
+      }`}
+    >
       <div>
-        <span className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
-          {project.timeframe}
+        <span className="font-mono text-xs uppercase tracking-[0.16em]">
+          <span className={`transition-colors duration-300 ${active ? "text-ink" : "text-muted"}`}>
+            {String(index).padStart(2, "0")}
+          </span>
+          <span className="text-muted"> &mdash; {project.timeframe}</span>
         </span>
         <h3 className="mt-3 font-serif text-3xl font-light uppercase tracking-tight text-ink sm:text-4xl">
           {project.title}
@@ -161,14 +188,15 @@ export function Projects({
           {flagships.map((project, i) => (
             <TimelineItem
               key={project.title}
+              index={i}
               dotClass={dotPalette[i % dotPalette.length]}
             >
-              <ProjectCard project={project} />
+              {(active) => <ProjectCard project={project} index={i + 1} active={active} />}
             </TimelineItem>
           ))}
 
-          <TimelineItem dotClass="bg-muted">
-            <FoundationsCard foundations={foundations} />
+          <TimelineItem index={flagships.length} dotClass="bg-muted" origin>
+            {(active) => <FoundationsCard foundations={foundations} active={active} />}
           </TimelineItem>
         </Timeline>
 

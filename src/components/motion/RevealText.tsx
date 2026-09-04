@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, type ElementType } from "react";
 import { motion, type Variants } from "framer-motion";
 
 const word: Variants = {
@@ -33,8 +33,13 @@ export function RevealText({
     visible: { transition: { staggerChildren: stagger, delayChildren: delay } },
   };
 
+  // `keyof JSX.IntrinsicElements` as a component forces TS to intersect
+  // required props across every HTML element (e.g. <object>'s) — widen to
+  // ElementType, the standard escape hatch for a polymorphic `as` prop
+  const Component = Tag as ElementType;
+
   return (
-    <Tag className={className}>
+    <Component className={className}>
       <motion.span
         variants={container}
         initial="hidden"
@@ -61,6 +66,6 @@ export function RevealText({
           </Fragment>
         ))}
       </motion.span>
-    </Tag>
+    </Component>
   );
 }

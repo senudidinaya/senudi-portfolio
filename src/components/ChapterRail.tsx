@@ -10,6 +10,7 @@ import { links } from "./Nav";
 // tracks overall scroll; the active chapter comes from an IntersectionObserver.
 // Mounted in page.tsx only — the root layout also wraps /admin, which gets no rail.
 const chapters = [{ href: "#top", label: "Prologue" }, ...links];
+const DARK_SCENES = new Set(["about", "contact"]);
 
 export function ChapterRail() {
   const [active, setActive] = useState("top");
@@ -48,10 +49,11 @@ export function ChapterRail() {
     else el.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Contact is the always-dark full-page scene: the theme-driven text/accent
-  // colors that work everywhere else can resolve near-invisible over it in
-  // light theme, so this chapter pins them to the dark-palette values instead.
-  const onScene = active === "contact";
+  // About and Contact are always-dark full-page scenes: the theme-driven
+  // text/accent colors that work everywhere else can resolve near-invisible
+  // over them in light theme, so these chapters pin to the dark-palette
+  // values instead.
+  const onScene = DARK_SCENES.has(active);
 
   return (
     <nav
