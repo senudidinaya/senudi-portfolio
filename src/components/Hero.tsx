@@ -37,7 +37,7 @@ export function Hero({
       <HeroBridgeBand />
 
       {/* metrics as a caption plate cutting across the plate's bottom edge */}
-      <div className="relative z-10 mx-auto -mt-12 w-full max-w-content px-5 sm:-mt-16 sm:px-8">
+      <div className="relative z-10 mx-auto -mt-12 w-full max-w-content px-5 pb-16 sm:-mt-16 sm:px-8 sm:pb-24">
         <HeroMetrics metrics={metrics} />
       </div>
     </section>
