@@ -325,10 +325,6 @@ export function AdminEditor({ initial }: { initial: SiteContent }) {
           </div>
           <Area label="Tagline" value={p.tagline} onChange={(v) => update((d) => { d.profile.tagline = v; })} />
           <StringList label="Roles" items={p.roles} onChange={(next) => update((d) => { d.profile.roles = next; })} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Area label="Hero — the ask" value={p.theBridge.ask} onChange={(v) => update((d) => { d.profile.theBridge.ask = v; })} />
-            <Area label="Hero — the build" value={p.theBridge.build} onChange={(v) => update((d) => { d.profile.theBridge.build = v; })} />
-          </div>
         </Section>
 
         <Section id="metrics" title="Metrics">
