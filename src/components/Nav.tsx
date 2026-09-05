@@ -67,7 +67,10 @@ export function Nav({ profile }: { profile: Profile }) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const onScroll = () => {
       const y = window.scrollY;
-      setPastHero(y > window.innerHeight * 0.8);
+      // the bar goes opaque almost immediately: the hero tagline sits well
+      // inside the first viewport, and it used to scroll under a fully
+      // transparent bar until 0.8vh
+      setPastHero(y > 24);
       if (!reduced) {
         if (y > lastY.current + 4 && y > 160) setHidden(true);
         else if (y < lastY.current - 4 || y <= 160) setHidden(false);
