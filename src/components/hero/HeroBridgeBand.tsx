@@ -69,6 +69,7 @@ export function HeroBridgeBand() {
   const [tier, setTier] = useState<Tier>("fallback");
   const [glFailed, setGlFailed] = useState(false);
   const [plateReady, setPlateReady] = useState(false);
+  const [handoff, setHandoff] = useState(false);
 
   useEffect(() => {
     if (reduce) return;
@@ -94,6 +95,20 @@ export function HeroBridgeBand() {
     if (!useGL) setPlateReady(false);
   }, [useGL]);
 
+  // at rest both sides of the plateReady flip are opacity 1, so the 380ms
+  // ease only shows if the reader was already scrolling when the assemble
+  // finished. Arm it for that one step, then drop the CSS transition so the
+  // scroll-driven opacity lands on the frame it is set, not 380ms behind.
+  useEffect(() => {
+    if (!useGL || !plateReady) {
+      setHandoff(false);
+      return;
+    }
+    setHandoff(true);
+    const t = window.setTimeout(() => setHandoff(false), 380);
+    return () => window.clearTimeout(t);
+  }, [useGL, plateReady]);
+
   // parallax across the full pass through the viewport
   const { scrollYProgress: pass } = useScroll({
     target: bandRef,
@@ -117,6 +132,11 @@ export function HeroBridgeBand() {
     target: bandRef,
     offset: ["center center", "end start"],
   });
+
+  // the plate is the exact inverse of the particle field: opaque at rest,
+  // dissolving to nothing on the same value the shader reads as uScroll.
+  // useTransform clamps to the output range, so this is 1 - progress on 0..1.
+  const plateOpacity = useTransform(exit, [0, 1], [1, 0]);
 
   // drive the scrub print from scroll; read the current value on mount so a
   // mid-page reload lands at the right print state instead of a blank plate
@@ -157,11 +177,11 @@ export function HeroBridgeBand() {
         {/* colour plate in the server HTML (already <link rel=preload>ed). It
             carries the accessible name until the dither/particle layer mounts
             and takes it over, so screen readers never hear the figure twice.
-            Stays fully opaque under the particle field until it's fully
-            assembled — a sparse point cloud mid-scatter must never show the
-            page through a coverage gap. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+            Stays fully opaque under the particle field at rest and only
+            dissolves as the band scrolls away — a sparse point cloud must
+            never show the page through a coverage gap while the hero is the
+            thing being read. */}
+        <motion.img
           src={heroMedia.image}
           alt={hideImgA11y ? "" : heroMedia.alt}
           aria-hidden={hideImgA11y || undefined}
@@ -171,8 +191,10 @@ export function HeroBridgeBand() {
           style={
             useGL
               ? {
-                  opacity: plateReady ? 0 : 1,
-                  transition: "opacity 380ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  opacity: plateReady ? plateOpacity : 1,
+                  transition: handoff
+                    ? "opacity 380ms cubic-bezier(0.22, 1, 0.36, 1)"
+                    : "none",
                 }
               : undefined
           }
