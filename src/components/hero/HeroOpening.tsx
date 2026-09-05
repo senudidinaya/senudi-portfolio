@@ -73,7 +73,10 @@ export function HeroOpening({
           +++ PROLOGUE +++
         </motion.p>
 
-        <h1 className="mt-6 font-serif text-display-lg font-light uppercase tracking-display text-ink">
+        {/* full-width column now, so the display type gets its own measure —
+            ~20–24 characters a line, which is what keeps the three-line
+            break rhythm reading as written */}
+        <h1 className="mt-6 max-w-4xl font-serif text-display-lg font-light uppercase tracking-display text-ink">
           <Line d={0.18}>
             I build the <em className="lowercase text-bridge">bridge</em> between
           </Line>
