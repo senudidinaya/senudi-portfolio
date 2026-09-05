@@ -28,7 +28,6 @@ export type Profile = {
   linkedin: string;
   github: string;
   resumeFile: string;
-  theBridge: { ask: string; build: string };
   tagline: string;
 };
 
@@ -65,10 +64,6 @@ export const defaultContent: SiteContent = {
     linkedin: "https://linkedin.com/in/senudi-rupasinghe",
     github: "https://github.com/senudidinaya",
     resumeFile: "/Senudi_Rupasinghe_CV.pdf",
-    theBridge: {
-      ask: "“The sales team needs this to work.”",
-      build: "A shipped feature in React + a Ballerina integration.",
-    },
     tagline:
       "I turn what the business needs into what engineering ships — across the frontend, the backend, and the research behind it.",
   },
