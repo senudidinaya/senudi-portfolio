@@ -3,7 +3,6 @@ import { heroMedia } from "@/data/media";
 import { HeroOpening } from "./hero/HeroOpening";
 import { HeroBridgeBand } from "./hero/HeroBridgeBand";
 import { HeroMetrics } from "./hero/HeroMetrics";
-import { TranslationPanel } from "./hero/TranslationPanel";
 
 export function Hero({
   profile,
@@ -40,10 +39,6 @@ export function Hero({
       {/* metrics as a caption plate cutting across the plate's bottom edge */}
       <div className="relative z-10 mx-auto -mt-12 w-full max-w-content px-5 sm:-mt-16 sm:px-8">
         <HeroMetrics metrics={metrics} />
-      </div>
-
-      <div className="mx-auto w-full max-w-content px-5 pb-16 pt-12 sm:px-8 sm:pb-20 sm:pt-14">
-        <TranslationPanel theBridge={profile.theBridge} />
       </div>
     </section>
   );
