@@ -46,7 +46,15 @@ void main() {
   pos.xy += (aSeed.xy - 0.5) * disp * 55.0;
   pos.z -= aSeed.z * disp * 40.0;
   pos.y += disp * 18.0;
-  vAlpha = 1.0 - disp * 0.92;
+
+  // the plate is solid at rest and dissolves INTO the field, so the alpha
+  // runs the opposite way to the <img> underneath: a faint 8% texture over
+  // the photo at rest, full strength by the time the photo has gone. The
+  // assemble still plays at full alpha so the intro reads as points forming
+  // — the tail of uProgress hands over to the scroll term, landing exactly
+  // where onReady flips the plate to scroll-driven opacity.
+  float scrollAlpha = smoothstep(0.0, 1.0, disp) * 0.9 + 0.08;
+  vAlpha = mix(1.0, scrollAlpha, smoothstep(0.7, 1.0, uProgress));
 
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mvPosition;
