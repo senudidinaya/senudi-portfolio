@@ -22,6 +22,13 @@ const WARM = [141 / 255, 84 / 255, 36 / 255];
 const COOL = [58 / 255, 84 / 255, 112 / 255];
 const TINT_STRENGTH = 0.18;
 
+// +/-0.35 of a grid cell of positional jitter, baked into the position buffer
+// at sample time. The sample grid is perfectly regular, which reads as a
+// screen-door lattice now that the field is visible at rest over the plate
+// rather than only mid-dissolve; this breaks it without moving any point far
+// enough to leave the pixel it took its colour from.
+const LATTICE_JITTER = 0.35;
+
 export async function sampleBridgeImage(opts: {
   src: string;
   pointBudget: number;
@@ -50,6 +57,10 @@ export async function sampleBridgeImage(opts: {
 
   const cols = Math.max(2, Math.round(Math.sqrt(opts.pointBudget * imageAspect)));
   const rows = Math.max(2, Math.round(Math.sqrt(opts.pointBudget / imageAspect)));
+
+  // one grid cell in plane units — the jitter budget is a fraction of this
+  const cellW = planeWidth / cols;
+  const cellH = planeHeight / rows;
 
   const sampler = document.createElement("canvas");
   sampler.width = cols;
@@ -88,8 +99,10 @@ export async function sampleBridgeImage(opts: {
       bb = bb * base + WARM[2] * warmT + COOL[2] * coolT;
 
       const p3 = n * 3;
-      target[p3] = (u - 0.5) * planeWidth;
-      target[p3 + 1] = (0.5 - v) * planeHeight;
+      const jx = (Math.random() - 0.5) * 2 * LATTICE_JITTER * cellW;
+      const jy = (Math.random() - 0.5) * 2 * LATTICE_JITTER * cellH;
+      target[p3] = (u - 0.5) * planeWidth + jx;
+      target[p3 + 1] = (0.5 - v) * planeHeight + jy;
       target[p3 + 2] = 0;
 
       color[p3] = rr;
