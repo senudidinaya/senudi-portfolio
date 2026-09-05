@@ -29,7 +29,6 @@ export const siteContentSchema = z.object({
     linkedin: z.string(),
     github: z.string(),
     resumeFile: z.string(),
-    theBridge: z.object({ ask: z.string(), build: z.string() }),
     tagline: z.string(),
   }),
   metrics: z.array(z.object({ value: z.string(), label: z.string() })),
