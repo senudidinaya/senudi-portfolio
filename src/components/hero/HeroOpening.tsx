@@ -76,7 +76,7 @@ export function HeroOpening({
           full flex-1 height), so the CTA row and the portrait's bottom edge
           land in the same neighbourhood rather than the copy floating
           centred above a portrait anchored to the band. */}
-      <div className="flex flex-1 flex-col justify-center py-10 sm:py-12 xl:grid xl:grid-cols-[1fr_300px] xl:items-start xl:gap-x-12">
+      <div className="flex flex-1 flex-col justify-center py-10 sm:py-12 xl:grid xl:grid-cols-[1fr_380px] xl:items-start xl:gap-x-12">
         <div>
           <motion.p variants={fade} custom={0.1} className="marker">
             +++ PROLOGUE +++
@@ -121,11 +121,10 @@ export function HeroOpening({
           </motion.div>
         </div>
 
-        {/* Second grid column, xl and up only. self-start aligns the
-            portrait's top edge with the top of column 1 — the eyebrow's own
-            baseline, since items-start on the grid top-aligns both columns
-            to the same line. */}
-        <div className="hidden self-start xl:block">
+        {/* Second grid column, xl and up only. self-stretch fills the
+            column's own box to the full height of the row track, handing
+            HeroPortrait a definite height to size itself from. */}
+        <div className="hidden self-stretch xl:block">
           <HeroPortrait />
         </div>
       </div>
