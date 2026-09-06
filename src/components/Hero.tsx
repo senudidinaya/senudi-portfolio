@@ -3,6 +3,7 @@ import { heroMedia } from "@/data/media";
 import { HeroOpening } from "./hero/HeroOpening";
 import { HeroBridgeBand } from "./hero/HeroBridgeBand";
 import { HeroMetrics } from "./hero/HeroMetrics";
+import { HeroPortrait } from "./hero/HeroPortrait";
 
 export function Hero({
   profile,
@@ -31,6 +32,14 @@ export function Hero({
             resumeFile={profile.resumeFile}
           />
         </div>
+
+        {/* Portrait on the cream page beside the headline, NOT on the band.
+            It positions itself against this container: its bottom anchor is
+            96px above this container's bottom edge, which is exactly the
+            band's top edge (the band pulls up over the content by its
+            sm:-mt-24), and its right edge lands on this container's gutter.
+            Nothing here clips, so the sticker's overhang is free. */}
+        <HeroPortrait />
       </div>
 
       {/* full-bleed chapter plate; slides up under the scroll cue via its -mt */}
