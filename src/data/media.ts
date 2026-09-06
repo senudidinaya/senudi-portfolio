@@ -1,5 +1,6 @@
 // Stylised illustration studies — intentionally anonymous: they show Senudi's
-// interests, not her likeness. Stand-ins until real footage exists.
+// interests, not her likeness. Stand-ins until real footage exists. The one
+// exception is `portraitMedia`, which is a real photograph of her.
 // To swap a composition, point `image` at one of the shipped alts
 // (facet-swim-alt.jpg, facet-desk-alt.jpg). To add motion, drop files in
 // public/media/ and set the `video` fields — see "Swapping in real footage"
@@ -29,6 +30,23 @@ export const aboutBackdrop: MediaAsset = {
   image: "/media/facet-swim.jpg",
   video: "/media/about-water.mp4",
   alt: "Stylised illustration — a swimmer mid-length seen through teal water",
+};
+
+// The hero portrait, in the right gutter beside the opening headline. A
+// cutout with a real alpha channel — head and shoulders on transparency, no
+// background — which is what lets the particle field dissolve the silhouette
+// itself rather than a rectangle. Its lower edge fades out in the alpha so the
+// figure dissolves into the bridge band it overlaps. Intrinsic 900x1125 (4:5);
+// the HeroPortrait frame matches that ratio exactly so the sampled plane fits
+// with no crop. No `video` — the motion here is the point field.
+//
+// The background must be alpha 0, not merely near-zero: a veil of low-alpha
+// pixels carrying a light background colour reads as a faint lighter rectangle
+// against the dark plate, which is what the first cut of this asset did.
+export const portraitMedia: MediaAsset = {
+  image: "/media/senudi-portrait.png",
+  video: null,
+  alt: "Senudi Rupasinghe — head-and-shoulders portrait, long dark hair, looking to camera",
 };
 
 export const facets: FacetMedia[] = [
