@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { aboutBackdrop } from "@/data/media";
 
 // Breaststroke curve: progress -> fraction of travel, in three surge/glide
 // cycles (surge = big fraction jump over a small slice of progress, glide =
@@ -27,6 +28,10 @@ export function LaneBackdrop({
   sectionRef: React.RefObject<HTMLElement>;
 }) {
   const reduceMotion = useReducedMotion();
+
+  // Motion plate is the video; reduced-motion viewers get the still instead
+  // (which is also the poster, so the two never disagree mid-load).
+  const playVideo = Boolean(aboutBackdrop.video) && !reduceMotion;
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
@@ -78,14 +83,28 @@ export function LaneBackdrop({
           style={{ scale: pulse, rotate: roll, x: sway, transformOrigin: "50% 48%" }}
           className="absolute -left-[5%] -right-[5%] -top-[2%] -bottom-[2%]"
         >
-          <img
-            src="/media/facet-swim.jpg"
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full object-cover -scale-y-100"
-            loading="lazy"
-            decoding="async"
-          />
+          {playVideo ? (
+            <video
+              src={aboutBackdrop.video ?? undefined}
+              poster={aboutBackdrop.image}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden="true"
+              className="h-full w-full object-cover -scale-y-100"
+            />
+          ) : (
+            <img
+              src={aboutBackdrop.image}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover -scale-y-100"
+              loading="lazy"
+              decoding="async"
+            />
+          )}
           <motion.div
             aria-hidden="true"
             style={{
