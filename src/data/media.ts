@@ -70,7 +70,7 @@ export const facets: FacetMedia[] = [
     key: "swim",
     label: "The Swimmer",
     caption: "Breaststroke — early lengths",
-    image: "/media/facet-swim-alt.jpg",
+    image: "/media/facet-swim-alt.png",
     video: null,
     alt: "Stylised illustration — a breaststroke swimmer surfacing head-on in a burst of white spray, lane rope blurred behind",
   },
