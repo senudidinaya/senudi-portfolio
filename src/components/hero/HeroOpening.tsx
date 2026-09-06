@@ -3,6 +3,7 @@
 import { motion, type Variants } from "framer-motion";
 import { useIntroGate } from "@/components/motion/Preloader";
 import { Magnetic } from "@/components/motion/Magnetic";
+import { HeroPortrait } from "./HeroPortrait";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -67,47 +68,66 @@ export function HeroOpening({
         <motion.div variants={draw} custom={0.15} className="mt-4 h-px origin-left bg-line" />
       </motion.div>
 
-      {/* headline block */}
-      <div className="flex flex-1 flex-col justify-center py-10 sm:py-12">
-        <motion.p variants={fade} custom={0.1} className="marker">
-          +++ PROLOGUE +++
-        </motion.p>
+      {/* headline block. Below xl: a single flex column, unchanged from
+          before — justify-center still vertically centres the group in the
+          available flex-1 space. At xl: a two-column grid, portrait beside
+          the copy instead of overlapping it. items-end bottom-aligns both
+          columns' content within the row (which stretches to the block's
+          full flex-1 height), so the CTA row and the portrait's bottom edge
+          land in the same neighbourhood rather than the copy floating
+          centred above a portrait anchored to the band. */}
+      <div className="flex flex-1 flex-col justify-center py-10 sm:py-12 xl:grid xl:grid-cols-[1fr_300px] xl:items-end xl:gap-x-12">
+        <div>
+          <motion.p variants={fade} custom={0.1} className="marker">
+            +++ PROLOGUE +++
+          </motion.p>
 
-        {/* full-width column now, so the display type gets its own measure —
-            ~20–24 characters a line, which is what keeps the three-line
-            break rhythm reading as written */}
-        <h1 className="mt-6 max-w-4xl font-serif text-display-lg font-light uppercase tracking-display text-ink">
-          <Line d={0.18}>
-            I build the <em className="lowercase text-bridge">bridge</em> between
-          </Line>
-          <Line d={0.3}>
-            <span className="text-warm">what the business needs</span>
-          </Line>
-          <Line d={0.42}>
-            and <span className="text-cool">what engineering ships.</span>
-          </Line>
-        </h1>
+          {/* max-w-4xl keeps the ~20–24 char measure below xl, where this
+              column runs the full content width. At xl the headline lives in
+              the grid's 1fr column beside the portrait and should wrap to
+              THAT width instead — max-w-none there, relying on the per-line
+              masked spans to keep wrapping internally same as always. */}
+          <h1 className="mt-6 max-w-4xl font-serif text-display-lg font-light uppercase tracking-display text-ink xl:max-w-none">
+            <Line d={0.18}>
+              I build the <em className="lowercase text-bridge">bridge</em> between
+            </Line>
+            <Line d={0.3}>
+              <span className="text-warm">what the business needs</span>
+            </Line>
+            <Line d={0.42}>
+              and <span className="text-cool">what engineering ships.</span>
+            </Line>
+          </h1>
 
-        <motion.p
-          variants={fade}
-          custom={0.65}
-          className="mt-7 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
-        >
-          {tagline}
-        </motion.p>
+          <motion.p
+            variants={fade}
+            custom={0.65}
+            className="mt-7 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
+          >
+            {tagline}
+          </motion.p>
 
-        <motion.div
-          variants={fade}
-          custom={0.78}
-          className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-4"
-        >
-          <Magnetic>
-            <CtaLink href="#work" label="See the work" arrow={"→"} />
-          </Magnetic>
-          <Magnetic>
-            <CtaLink href={resumeFile} label="Download resume" arrow={"↓"} download />
-          </Magnetic>
-        </motion.div>
+          <motion.div
+            variants={fade}
+            custom={0.78}
+            className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-4"
+          >
+            <Magnetic>
+              <CtaLink href="#work" label="See the work" arrow={"→"} />
+            </Magnetic>
+            <Magnetic>
+              <CtaLink href={resumeFile} label="Download resume" arrow={"↓"} download />
+            </Magnetic>
+          </motion.div>
+        </div>
+
+        {/* Second grid column, xl and up only. self-end alone (no bottom
+            margin now) aligns the portrait's bottom edge with the bottom of
+            column 1 — the CTA row's own baseline, since items-end on the
+            grid bottom-aligns both columns to the same line. */}
+        <div className="hidden self-end xl:block">
+          <HeroPortrait />
+        </div>
       </div>
 
       {/* scroll cue */}
