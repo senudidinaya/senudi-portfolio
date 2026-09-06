@@ -7,45 +7,23 @@ import dynamic from "next/dynamic";
 import { DitherMedia, type DitherMediaHandle } from "@/components/dither/DitherMedia";
 import { useIntro } from "@/components/motion/Preloader";
 import { heroMedia } from "@/data/media";
-import type { Tier } from "./particleTypes";
+import type { PointBudget } from "@/components/particles/particleTypes";
+import { useParticleTier } from "@/components/particles/useParticleTier";
 
 // three/@react-three/fiber (~150KB) must land in an async chunk, fetched
 // only once the intro is done and the device has cleared tiering — never in
 // the route's first-load JS
-const HeroParticles = dynamic(
-  () => import("./HeroParticles").then((m) => m.HeroParticles),
+const ParticleImage = dynamic(
+  () => import("@/components/particles/ParticleImage").then((m) => m.ParticleImage),
   { ssr: false, loading: () => null }
 );
 
-function detectWebGL(): boolean {
-  try {
-    const c = document.createElement("canvas");
-    return !!(c.getContext("webgl2") || c.getContext("webgl"));
-  } catch {
-    return false;
-  }
-}
-
-function detectLowPower(): boolean {
-  const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
-  const saveData = nav.connection?.saveData === true;
-  const cores = navigator.hardwareConcurrency ?? 4;
-  const coarseSmall =
-    window.matchMedia("(pointer: coarse)").matches &&
-    window.matchMedia("(max-width: 820px)").matches;
-  return saveData || cores <= 4 || coarseSmall;
-}
-
-function detectTier(): Exclude<Tier, "fallback"> {
-  const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
-  const saveData = nav.connection?.saveData === true;
-  const cores = navigator.hardwareConcurrency ?? 4;
-  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const largeViewport = window.matchMedia("(min-width: 1024px)").matches;
-  if (cores >= 8 && finePointer && largeViewport && !saveData) return "high";
-  if (cores >= 5 && finePointer) return "mid";
-  return "low";
-}
+// module-level so the object identity is stable across renders
+const HERO_POINT_BUDGET: PointBudget = {
+  low: 28000,
+  mid: 85000,
+  high: 150000,
+};
 
 // The hero illustration as a full-bleed chapter plate the opening text
 // physically touches. Full-bleed by construction (w-full on a gutterless
@@ -62,32 +40,14 @@ export function HeroBridgeBand() {
   const bandRef = useRef<HTMLDivElement>(null);
   const dither = useRef<DitherMediaHandle>(null);
 
-  // seeded to fallback values — the WebGL/navigator probes below throw
-  // during SSR prerender, so they can only ever run post-mount
-  const [webglSupported, setWebglSupported] = useState(false);
-  const [lowPower, setLowPower] = useState(false);
-  const [tier, setTier] = useState<Tier>("fallback");
+  // null until the post-mount probes land, and whenever the device should get
+  // the plain <img> instead — reduced motion, low power, or no WebGL
+  const tier = useParticleTier();
   const [glFailed, setGlFailed] = useState(false);
   const [plateReady, setPlateReady] = useState(false);
   const [handoff, setHandoff] = useState(false);
 
-  useEffect(() => {
-    if (reduce) return;
-    const low = detectLowPower();
-    setLowPower(low);
-    // low-power devices never reach useGL regardless of webglSupported —
-    // skip probing entirely there, since creating (even a throwaway) WebGL
-    // context has real, measurable main-thread cost under CPU throttling
-    if (low) {
-      setTier("fallback");
-      return;
-    }
-    setWebglSupported(detectWebGL());
-    setTier(detectTier());
-  }, [reduce]);
-
-  const useGL =
-    introDone && !reduce && webglSupported && !lowPower && tier !== "fallback" && !glFailed;
+  const useGL = introDone && tier !== null && !glFailed;
 
   // a downgrade (context lost, or useGL simply flipping false) must always
   // restore full <img> opacity — never leave a transparent hero behind
@@ -211,11 +171,14 @@ export function HeroBridgeBand() {
             className="absolute inset-0 h-full w-full"
           />
         )}
-        {useGL && (
-          <HeroParticles
-            exit={exit}
-            tier={tier as Exclude<Tier, "fallback">}
+        {useGL && tier && (
+          <ParticleImage
+            src={heroMedia.image}
+            dissolve={exit}
+            tier={tier}
             theme={theme}
+            pointBudget={HERO_POINT_BUDGET}
+            grade="bridge"
             onReady={() => setPlateReady(true)}
             onContextLost={() => setGlFailed(true)}
           />
