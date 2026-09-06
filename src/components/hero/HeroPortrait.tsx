@@ -22,7 +22,7 @@ export function HeroPortrait() {
           height={1125}
           loading="lazy"
           decoding="async"
-          className="h-full w-auto object-contain object-top [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+          className="h-full w-auto object-contain object-top [mask-image:linear-gradient(to_bottom,black_88%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_88%,transparent_100%)]"
         />
       </div>
     </div>
