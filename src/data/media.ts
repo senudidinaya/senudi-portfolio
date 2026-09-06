@@ -23,6 +23,14 @@ export const heroMedia: MediaAsset = {
   alt: "Stylised illustration — a footbridge spanning from a forest ridge to a city skyline in morning fog",
 };
 
+// The About section backdrop (the lane/water plate behind "Who I am").
+// `video` drives it; set `video: null` to fall straight back to the still.
+export const aboutBackdrop: MediaAsset = {
+  image: "/media/facet-swim.jpg",
+  video: "/media/about-water.mp4",
+  alt: "Stylised illustration — a swimmer mid-length seen through teal water",
+};
+
 export const facets: FacetMedia[] = [
   {
     key: "curious",
