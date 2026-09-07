@@ -71,14 +71,6 @@ export function Contact({
       </div>
 
       <div className="relative z-10 -mt-[100svh]">
-        {/* vertical chapter marker — the izanami "COMPANY" gesture */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute left-5 top-1/2 hidden -translate-y-1/2 font-mono text-xs uppercase tracking-[0.3em] text-muted [writing-mode:vertical-rl] lg:block sm:left-8"
-        >
-          CONTACT
-        </span>
-
         {/* accessible heading; the display statement below carries the visual weight */}
         <h2 className="sr-only">Contact</h2>
 
