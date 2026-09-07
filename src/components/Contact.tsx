@@ -76,7 +76,7 @@ export function Contact({
           aria-hidden="true"
           className="pointer-events-none absolute left-5 top-1/2 hidden -translate-y-1/2 font-mono text-xs uppercase tracking-[0.3em] text-muted [writing-mode:vertical-rl] lg:block sm:left-8"
         >
-          04 &mdash; CONTACT
+          CONTACT
         </span>
 
         {/* accessible heading; the display statement below carries the visual weight */}
@@ -218,21 +218,6 @@ export function Contact({
               </MotionReveal>
             </div>
           </div>
-        </div>
-
-        {/* HUD captions — the plate's signature, anchored to the scene's corners.
-            Stacked below sm: side by side (bottom-left/right) at sm+ the combined
-            text can exceed a phone's width and the two would overlap each other. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-6 z-10 mx-auto flex max-w-content flex-col items-start gap-2 px-5 sm:flex-row sm:items-end sm:justify-between sm:px-8"
-        >
-          <span className="bg-bg/85 px-2.5 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-ink">
-            FIG. 05 &mdash; BASE OF OPERATIONS
-          </span>
-          <span className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-ink/70 sm:text-right">
-            {profile.location} &middot; 07.03&deg; N / 79.92&deg; E &middot; UTC+05:30
-          </span>
         </div>
       </div>
     </section>
