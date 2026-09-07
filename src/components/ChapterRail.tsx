@@ -61,7 +61,7 @@ export function ChapterRail() {
       className="fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 lg:block"
     >
       <div className="relative flex flex-col items-end gap-3 pr-4">
-        {chapters.map((c, i) => {
+        {chapters.map((c) => {
           const on = active === c.href.slice(1);
           return (
             <a
@@ -82,7 +82,7 @@ export function ChapterRail() {
                     : "text-muted/50 group-hover:text-muted"
                 }`}
               >
-                {String(i).padStart(2, "0")} {c.label}
+                {c.label}
               </span>
               <span
                 aria-hidden="true"
