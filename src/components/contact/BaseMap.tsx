@@ -16,6 +16,19 @@ const MINT = "rgb(104, 200, 150)"; // dark-theme --bridge, hardcoded: the plate
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+// 220x220 CSS-pixel tile, tuned in real pixel space (unlike the map's own
+// viewBox) so baseFrequency 0.85 lands at the intended grain scale. Repeated
+// via background-repeat, so it reads as one uniform texture across the plate.
+const GRAIN_TILE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E";
+
+const GRAIN_STYLE = {
+  backgroundImage: `url("${GRAIN_TILE}")`,
+  backgroundRepeat: "repeat",
+  backgroundSize: "220px 220px",
+  opacity: 0.22,
+} as const;
+
 const [px, py] = lankaPoint;
 // Label centers below the point; the leader is a short vertical tick.
 const leader = { x1: px, y1: py + 6, x2: px, y2: py + 34 };
@@ -65,6 +78,24 @@ export function BaseMap() {
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.05" />
               <stop offset="55%" stopColor="#ffffff" stopOpacity="0" />
             </radialGradient>
+
+            {/* darkens from the pin outward — the lit area is where the
+                content sits. r=950 (down from 1150) and the ramp front-loaded
+                to 18-80% so the darkening actually lands on-screen instead of
+                mostly past the visible edges */}
+            <radialGradient
+              id="basemap-vignette"
+              cx={px}
+              cy={py}
+              r={950}
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+              <stop offset="18%" stopColor="#000000" stopOpacity="0" />
+              <stop offset="50%" stopColor="#000000" stopOpacity="0.75" />
+              <stop offset="80%" stopColor="#000000" stopOpacity="0.97" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0.98" />
+            </radialGradient>
           </defs>
 
           <g className="map-drift">
@@ -88,7 +119,10 @@ export function BaseMap() {
               <path
                 d={lanka}
                 fill={MINT}
-                style={{ filter: "drop-shadow(0 0 6px rgba(104, 200, 150, 0.65))" }}
+                style={{
+                  filter:
+                    "drop-shadow(0 0 6px rgba(104, 200, 150, 0.65)) drop-shadow(0 0 30px rgba(104, 200, 150, 0.25))",
+                }}
               />
               {/* core dot */}
               <circle cx={px} cy={py} r={2} fill={MINT} />
@@ -151,8 +185,29 @@ export function BaseMap() {
                 Sri Lanka
               </text>
             </motion.g>
+
+            {/* pin-anchored falloff; padded past the viewBox so the ±24px
+                drift never uncovers an edge */}
+            <rect
+              x={-40}
+              y={-40}
+              width={1680}
+              height={980}
+              fill="url(#basemap-vignette)"
+              pointerEvents="none"
+            />
           </g>
         </svg>
+
+        {/* static film grain, as a tiled CSS layer rather than an in-SVG
+            filter: the map's own viewBox (1600x900 abstract units, scaled to
+            fill the viewport) is not 1:1 with screen pixels, so a feTurbulence
+            baseFrequency tuned for pixel space read 3-4x finer than intended
+            here and anti-aliased away to nothing. The tile below is declared
+            in real CSS pixels (220x220), so baseFrequency lands at the
+            intended scale regardless of viewport size or the map's own scale
+            factor. feTurbulence has no time input, so this never animates */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={GRAIN_STYLE} />
       </div>
     </Magnetic>
   );
