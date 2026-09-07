@@ -31,13 +31,24 @@ export function About({
           <SectionHeading title="Who I am" />
 
           <div className="mt-10 sm:mt-12">
-            {lead && (
-              <MotionReveal>
-                <p className="max-w-3xl font-serif text-2xl font-light leading-snug text-ink sm:text-3xl">
-                  {lead}
-                </p>
-              </MotionReveal>
-            )}
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
+              <div className="relative mx-auto w-48 shrink-0 overflow-hidden motion-safe:hover:animate-wiggle sm:w-60 lg:order-2 lg:mx-0 lg:w-[32%]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/media/swimmer.png"
+                  alt="Senudi mid-stroke in a swimming pool, goggles on, breaking the surface in a burst of spray"
+                  className="block h-auto w-full"
+                />
+              </div>
+
+              {lead && (
+                <MotionReveal>
+                  <p className="max-w-3xl font-serif text-2xl font-light leading-snug text-ink sm:text-3xl lg:max-w-xl">
+                    {lead}
+                  </p>
+                </MotionReveal>
+              )}
+            </div>
 
             {rest.length > 0 && (
               <div className="relative mt-12">

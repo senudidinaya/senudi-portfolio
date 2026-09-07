@@ -10,7 +10,10 @@ import { portraitMedia } from "@/data/media";
 // container instead, positioned in Hero.tsx.
 export function HeroPortrait() {
   return (
-    <div className="relative w-[300px] xl:w-fit">
+    // the wiggle rides the outermost wrapper, not the <img> — the frame below
+    // is an overflow-hidden crop guard the image exactly fills, so rotating
+    // inside it would shave the corners
+    <div className="relative w-[300px] origin-bottom motion-safe:hover:animate-wiggle xl:w-fit">
       {/* overflow-hidden here is a defensive crop guard, not a dissolve
           confinement — there's no field to contain any more, but the image
           is 4:5 and the frame matches, so this never actually crops it. */}

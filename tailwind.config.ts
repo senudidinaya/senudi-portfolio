@@ -43,10 +43,20 @@ const config: Config = {
           "0%": { transform: "scaleX(0)" },
           "100%": { transform: "scaleX(1)" },
         },
+        // one damped rotation burst — hover-only, so it settles back to rest
+        // rather than looping at the reader
+        wiggle: {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "22%": { transform: "rotate(-1.4deg)" },
+          "44%": { transform: "rotate(1.1deg)" },
+          "66%": { transform: "rotate(-0.7deg)" },
+          "84%": { transform: "rotate(0.35deg)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
         "draw-line": "draw-line 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both",
+        wiggle: "wiggle 0.65s cubic-bezier(0.22, 1, 0.36, 1)",
       },
     },
   },
