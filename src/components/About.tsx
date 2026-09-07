@@ -29,7 +29,7 @@ export function About({
 
       <div className="relative z-10 -mt-[100svh]">
         <div className="mx-auto max-w-content px-5 py-16 sm:px-8 sm:py-24">
-          <SectionHeading eyebrow="01 / About" title="Who I am" />
+          <SectionHeading title="Who I am" />
 
           <div className="mt-10 sm:mt-12">
             {lead && (
