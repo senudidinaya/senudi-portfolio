@@ -4,7 +4,6 @@ import { useRef } from "react";
 import type { SiteContent } from "@/data/content";
 import { SectionHeading } from "./SectionHeading";
 import { MotionReveal } from "./motion/MotionReveal";
-import { Facets } from "./Facets";
 import { LaneBackdrop } from "./about/LaneBackdrop";
 
 export function About({
@@ -85,16 +84,6 @@ export function About({
                   </Row>
                 </MotionReveal>
               </div>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -inset-x-4 -inset-y-6 bg-bg/55 sm:-inset-x-6"
-            />
-            <div className="relative">
-              <Facets />
             </div>
           </div>
         </div>
