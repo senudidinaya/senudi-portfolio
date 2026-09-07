@@ -64,8 +64,7 @@ export function Facets() {
 
   return (
     <div className="mt-14 sm:mt-16">
-      <p className="marker">+++ IN HER ELEMENT +++</p>
-      <div className="mt-4 h-px bg-line" />
+      <div className="h-px bg-line" />
 
       <div className="mt-8 lg:grid lg:grid-cols-[15rem_1fr] lg:gap-10">
         {/* index rail (lg+): each row drives its card and lights up when the

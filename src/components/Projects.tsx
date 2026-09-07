@@ -175,7 +175,7 @@ export function Projects({
   return (
     <section id="work" className="px-5 py-16 sm:px-8 sm:py-24">
       <div className="mx-auto max-w-content">
-        <SectionHeading eyebrow="03 / Work" title="How I've grown" />
+        <SectionHeading title="How I've grown" />
 
         <MotionReveal>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted">

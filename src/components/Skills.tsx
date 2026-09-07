@@ -43,7 +43,7 @@ export function Skills({ skills }: { skills: SiteContent["skills"] }) {
       className="overflow-hidden border-y border-line bg-surface px-5 py-14 sm:px-8 sm:py-20"
     >
       <div className="mx-auto max-w-content">
-        <SectionHeading eyebrow="02 / Skills" title="Two sides, one workflow" />
+        <SectionHeading title="Two sides, one workflow" />
 
         <MotionReveal>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted">
