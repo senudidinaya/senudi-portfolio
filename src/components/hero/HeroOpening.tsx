@@ -32,6 +32,29 @@ const draw: Variants = {
   }),
 };
 
+// Headline copy as per-line segment lists so the entrance can step word by
+// word while each line keeps its original base delay — the cascade still
+// clears before the tagline lands at 0.65 instead of running long.
+const WORD_STEP = 0.05;
+
+type Segment = { text: string; className?: string; em?: boolean };
+
+const HEADLINE: { d: number; segments: Segment[] }[] = [
+  {
+    d: 0.18,
+    segments: [
+      { text: "I build the" },
+      { text: "bridge", className: "lowercase text-bridge", em: true },
+      { text: "between" },
+    ],
+  },
+  { d: 0.3, segments: [{ text: "what the business needs", className: "text-warm" }] },
+  {
+    d: 0.42,
+    segments: [{ text: "and" }, { text: "what engineering ships.", className: "text-cool" }],
+  },
+];
+
 export function HeroOpening({
   openTo,
   location,
@@ -84,15 +107,9 @@ export function HeroOpening({
               THAT width instead — max-w-none there, relying on the per-line
               masked spans to keep wrapping internally same as always. */}
           <h1 className="mt-6 max-w-4xl font-serif text-display-lg font-light uppercase tracking-display text-ink xl:max-w-none">
-            <Line d={0.18}>
-              I build the <em className="lowercase text-bridge">bridge</em> between
-            </Line>
-            <Line d={0.3}>
-              <span className="text-warm">what the business needs</span>
-            </Line>
-            <Line d={0.42}>
-              and <span className="text-cool">what engineering ships.</span>
-            </Line>
+            {HEADLINE.map((line, i) => (
+              <Line key={i} d={line.d} segments={line.segments} />
+            ))}
           </h1>
 
           <motion.p
@@ -128,15 +145,54 @@ export function HeroOpening({
   );
 }
 
-// one masked headline line; long lines may wrap inside the same mask on
-// small screens and rise as a block
-function Line({ d, children }: { d: number; children: React.ReactNode }) {
+// one headline line, split to words. Every word carries its OWN mask: these
+// lines wrap into several rows at most widths, and a single line-level mask
+// would slide one wrapped row up across another instead of revealing in place.
+function Line({ d, segments }: { d: number; segments: Segment[] }) {
+  let n = 0;
   return (
-    <span className="block overflow-hidden pb-[0.09em] -mb-[0.09em]">
-      <motion.span variants={rise} custom={d} className="block">
-        {children}
-      </motion.span>
+    <span className="block">
+      {segments.map((seg, si) =>
+        seg.text.split(" ").map((word, wi) => (
+          <Word
+            key={`${si}-${wi}`}
+            delay={d + n++ * WORD_STEP}
+            className={seg.className}
+            em={seg.em}
+          >
+            {word}
+          </Word>
+        ))
+      )}
     </span>
+  );
+}
+
+// masked rise on entrance, lift on hover. The two live on different elements
+// so they never fight over the same transform: framer drives the inner span,
+// CSS drives the mask around it. Lifting the mask (rather than the glyph
+// inside it) is what keeps the hover from shaving the word's top edge.
+// pb/-mb gives descenders room inside the mask without touching the line box.
+function Word({
+  delay,
+  className,
+  em = false,
+  children,
+}: {
+  delay: number;
+  className?: string;
+  em?: boolean;
+  children: React.ReactNode;
+}) {
+  const Inner = em ? motion.em : motion.span;
+  return (
+    <>
+      <span className="inline-block overflow-hidden pb-[0.09em] -mb-[0.09em] align-bottom transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:hover:-translate-y-[0.07em]">
+        <Inner variants={rise} custom={delay} className={`inline-block ${className ?? ""}`}>
+          {children}
+        </Inner>
+      </span>{" "}
+    </>
   );
 }
 
