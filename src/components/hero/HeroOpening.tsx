@@ -128,30 +128,6 @@ export function HeroOpening({
           <HeroPortrait />
         </div>
       </div>
-
-      {/* scroll cue */}
-      <motion.div
-        variants={fade}
-        custom={0.95}
-        className="mb-6 flex w-min flex-col items-center gap-2"
-      >
-        <span className="bg-bg px-2 py-0.5 font-mono text-[0.62rem] uppercase tracking-[0.3em] text-muted">
-          Scroll
-        </span>
-        <span className="relative block h-10 w-px overflow-hidden bg-line" aria-hidden="true">
-          <motion.span
-            className="absolute left-0 top-0 h-full w-px bg-ink"
-            animate={{ y: ["-100%", "100%"] }}
-            transition={{
-              duration: 2.2,
-              ease: "easeInOut",
-              repeat: Infinity,
-              repeatDelay: 0.4,
-              delay: 1.8,
-            }}
-          />
-        </span>
-      </motion.div>
     </motion.div>
   );
 }

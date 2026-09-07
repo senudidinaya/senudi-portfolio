@@ -199,14 +199,6 @@ export function HeroBridgeBand() {
         style={reduce ? { scaleX: 0 } : { scaleX: curtain }}
         className="absolute inset-y-0 right-0 w-[max(0px,calc((100%-68rem)/2+2rem))] origin-right bg-bg"
       />
-
-      {/* figure caption — sits just clear of the metrics plate that laps the
-          image's bottom edge */}
-      <span className="absolute bottom-14 left-3 z-10 sm:bottom-20 sm:left-4">
-        <span className="bg-bg/85 px-2.5 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-ink">
-          FIG. 00 &mdash; THE BRIDGE
-        </span>
-      </span>
     </div>
   );
 }
