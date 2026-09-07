@@ -78,12 +78,27 @@ export function HeroBridgeBand() {
   // ±5% stays inside the 6% oversize on each edge, so no gap ever shows.
   const y = useTransform(pass, [0, 1], ["-5%", "5%"]);
 
-  // entry: curtains open + the print resolves as the plate scrolls to centre
+  // entry: the aperture curtains part as the plate scrolls to centre
   const { scrollYProgress: entry } = useScroll({
     target: bandRef,
     offset: ["start end", "center center"],
   });
   const curtain = useTransform(entry, [0, 1], [1, 0]);
+
+  // The scrub print gets its OWN, earlier range rather than riding `entry`.
+  // `entry` runs to "center center", which on a 52svh mobile plate is most of
+  // a screen after the plate first appears — long enough that the reader
+  // spends the whole hero looking at a half-printed plate instead of the
+  // bridge. On desktop that entering plate is covered by the curtains, but
+  // their width computes to 0px below 68rem (see the aperture comment below),
+  // so on a phone the unfinished print IS the hero. Resolving over the plate's
+  // arrival keeps the print as an entrance while guaranteeing the bridge has
+  // actually landed by the time the plate holds the screen. Deliberately
+  // separate from `entry` so the curtains — and desktop — are untouched.
+  const { scrollYProgress: print } = useScroll({
+    target: bandRef,
+    offset: ["start end", "start center"],
+  });
 
   // exit: 0 at the centred hero moment, rising to 1 as the band leaves —
   // `entry` maxes out and holds at the centred moment, so it can't drive
@@ -104,9 +119,9 @@ export function HeroBridgeBand() {
     if (reduce || useGL) return;
     const d = dither.current;
     if (!d) return;
-    d.setProgress(entry.get());
-    return entry.on("change", (p) => d.setProgress(p));
-  }, [entry, introDone, reduce, useGL]);
+    d.setProgress(print.get());
+    return print.on("change", (p) => d.setProgress(p));
+  }, [print, introDone, reduce, useGL]);
 
   // the site's single cursor signature — internally inert until the colour locks
   useEffect(() => {
@@ -125,9 +140,15 @@ export function HeroBridgeBand() {
   const hideImgA11y = introDone && !useGL;
 
   return (
+    // The negative margin is what slides the plate up under the opening
+    // column so the two touch. It only has room to do that once the column has
+    // spare height below the CTA row: below sm the copy already overflows the
+    // 88svh box, so a -mt lands the plate directly on the links (and the
+    // unfinished scrub print with it). Abut instead of overlapping there — the
+    // plate still meets the column, and the CTAs keep its py-10 as clearance.
     <div
       ref={bandRef}
-      className="relative -mt-16 h-[52svh] w-full overflow-hidden sm:-mt-24 sm:h-[64svh]"
+      className="relative mt-0 h-[52svh] w-full overflow-hidden sm:-mt-24 sm:h-[64svh]"
     >
       {/* oversize media layer — parallax by translate only */}
       <motion.div

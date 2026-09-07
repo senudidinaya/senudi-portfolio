@@ -123,7 +123,7 @@ export function HeroOpening({
           <motion.div
             variants={fade}
             custom={0.78}
-            className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-4"
+            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4 sm:gap-x-10"
           >
             <Magnetic>
               <CtaLink href="#work" label="See the work" arrow={"→"} />
