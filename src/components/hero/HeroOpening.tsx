@@ -78,10 +78,6 @@ export function HeroOpening({
           centred above a portrait anchored to the band. */}
       <div className="flex flex-1 flex-col justify-center py-10 sm:py-12 xl:grid xl:grid-cols-[1fr_380px] xl:items-start xl:gap-x-12">
         <div>
-          <motion.p variants={fade} custom={0.1} className="marker">
-            +++ PROLOGUE +++
-          </motion.p>
-
           {/* max-w-4xl keeps the ~20–24 char measure below xl, where this
               column runs the full content width. At xl the headline lives in
               the grid's 1fr column beside the portrait and should wrap to
