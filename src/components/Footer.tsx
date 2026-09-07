@@ -47,8 +47,6 @@ export function Footer({ profile }: { profile: Profile }) {
             </Magnetic>
           </div>
         </div>
-
-        <p className="marker mt-12 text-center">+++ END +++</p>
       </div>
     </footer>
   );
