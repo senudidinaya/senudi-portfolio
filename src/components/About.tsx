@@ -31,8 +31,20 @@ export function About({
           <SectionHeading title="Who I am" />
 
           <div className="mt-10 sm:mt-12">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
-              <div className="relative mx-auto w-48 shrink-0 overflow-hidden motion-safe:hover:animate-wiggle sm:w-60 lg:order-2 lg:mx-0 lg:w-[32%]">
+            {/* Below lg this is a single column and the photograph reads full
+                width, after the lead paragraph — order-2 does that in both
+                directions, since in flex-col it follows the paragraph and in
+                lg:flex-row it lands in the right-hand column exactly as
+                lg:order-2 did. gap-12 matches the mt-12 on the block below, so
+                the photograph carries the same rhythm above and below as every
+                other block here; lg:gap-10 overrides it for the side-by-side.
+                The source is 859x583 (1.473:1, landscape), so at full column
+                width it comes out 227–254px tall across phone widths — h-auto
+                keeps the aspect honest and no max-height or object-position is
+                needed. No filter here or on desktop: the colour is the asset's
+                own. */}
+            <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-10">
+              <div className="relative order-2 w-full shrink-0 overflow-hidden motion-safe:hover:animate-wiggle lg:w-[32%]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/media/swimmer.png"
