@@ -150,12 +150,28 @@ export function HeroBridgeBand() {
     // The negative margin is what slides the plate up under the opening
     // column so the two touch. It only has room to do that once the column has
     // spare height below the CTA row: below sm the copy already overflows the
-    // 88svh box, so a -mt lands the plate directly on the links (and the
-    // unfinished scrub print with it). Abut instead of overlapping there — the
-    // plate still meets the column, and the CTAs keep its py-10 as clearance.
+    // 88svh box, so a -mt lands the plate directly on the links. Abut instead
+    // of overlapping there — the plate still meets the column, and the CTAs
+    // keep its py-10 as clearance.
+    //
+    // Below lg the height is the source's own aspect rather than a slice of
+    // the viewport. A viewport-relative height made this a portrait-ish box
+    // (0.79–0.97:1 on phones, 1.17:1 on a tablet) around a 2528x1088 (2.324:1)
+    // plate, so object-cover threw away 55–66% of the width from the centre
+    // out: the forest ridge at x 0–14% and the city spires at x 66–100% both
+    // fell outside the frame, leaving only valley and deck. Both cliffs are
+    // the point of the image, and no object-position can hold two opposite
+    // edges at once, so the frame has to match the plate. 2.6 =
+    // (2528/1088) x 1.12, the 1.12 being the media layer's parallax overshoot
+    // — that lands cover on the full source width. The reset is on lg rather
+    // than sm because a tablet is the same portrait box at a wider size;
+    // 1024+ keeps the viewport-relative height it always had, untouched.
+    //
+    // The -mt stays on sm: it sets the plate's top edge, not its height, so
+    // moving the aspect reset to lg leaves tablet CTA clearance alone.
     <div
       ref={bandRef}
-      className="relative mt-0 h-[52svh] w-full overflow-hidden sm:-mt-24 sm:h-[64svh]"
+      className="relative mt-0 aspect-[2.6] w-full overflow-hidden sm:-mt-24 lg:aspect-auto lg:h-[64svh]"
     >
       {/* oversize media layer — parallax by translate only */}
       <motion.div
