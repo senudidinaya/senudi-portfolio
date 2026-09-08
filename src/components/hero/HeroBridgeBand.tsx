@@ -27,9 +27,10 @@ const HERO_POINT_BUDGET: PointBudget = {
 
 // The hero illustration as a full-bleed chapter plate the opening text
 // physically touches. Full-bleed by construction (w-full on a gutterless
-// section — no vw units, which would count the Windows scrollbar). The scroll
-// prints the plate line-by-line and parts the aperture curtains so the colour
-// blooms exactly as the reader arrives; the cursor then ripples it. The colour
+// section — no vw units, which would count the Windows scrollbar). On desktop
+// the scroll parts the aperture curtains so the colour blooms exactly as the
+// reader arrives, over a WebGL point field. Phones get the resolved plate
+// directly — see the transition note on the dither layer below. The colour
 // <img> is in the server HTML unconditionally so a crest that wins the LCP
 // contest still paints at first paint — only the canvas/scrub/particle layer
 // gates on the intro curtain lifting.
@@ -48,6 +49,25 @@ export function HeroBridgeBand() {
   const [handoff, setHandoff] = useState(false);
 
   const useGL = introDone && tier !== null && !glFailed;
+
+  // Whether the aperture curtains actually exist at this width. Their width is
+  // max(0px, calc((100%-68rem)/2+2rem)), so below 68rem they compute to 0px —
+  // and the curtains are the whole reason an unresolved plate is acceptable
+  // while it enters: on desktop they cover it behind the text column. Under
+  // 68rem there is nothing to cover it, so the dither entrance would simply BE
+  // the hero. Gating on the curtain's own breakpoint (rather than on "is this
+  // a phone") keeps the scrub exactly as it was everywhere a curtain exists,
+  // including a no-WebGL or reduced-motion desktop. null until the probe
+  // lands; DitherMedia only mounts post-intro, so it has always resolved by
+  // then, and a resize across the boundary re-runs the dither effect.
+  const [curtained, setCurtained] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 68rem)");
+    const read = () => setCurtained(mq.matches);
+    read();
+    mq.addEventListener("change", read);
+    return () => mq.removeEventListener("change", read);
+  }, []);
 
   // a downgrade (context lost, or useGL simply flipping false) must always
   // restore full <img> opacity — never leave a transparent hero behind
@@ -78,27 +98,12 @@ export function HeroBridgeBand() {
   // ±5% stays inside the 6% oversize on each edge, so no gap ever shows.
   const y = useTransform(pass, [0, 1], ["-5%", "5%"]);
 
-  // entry: the aperture curtains part as the plate scrolls to centre
+  // entry: curtains open + the print resolves as the plate scrolls to centre
   const { scrollYProgress: entry } = useScroll({
     target: bandRef,
     offset: ["start end", "center center"],
   });
   const curtain = useTransform(entry, [0, 1], [1, 0]);
-
-  // The scrub print gets its OWN, earlier range rather than riding `entry`.
-  // `entry` runs to "center center", which on a 52svh mobile plate is most of
-  // a screen after the plate first appears — long enough that the reader
-  // spends the whole hero looking at a half-printed plate instead of the
-  // bridge. On desktop that entering plate is covered by the curtains, but
-  // their width computes to 0px below 68rem (see the aperture comment below),
-  // so on a phone the unfinished print IS the hero. Resolving over the plate's
-  // arrival keeps the print as an entrance while guaranteeing the bridge has
-  // actually landed by the time the plate holds the screen. Deliberately
-  // separate from `entry` so the curtains — and desktop — are untouched.
-  const { scrollYProgress: print } = useScroll({
-    target: bandRef,
-    offset: ["start end", "start center"],
-  });
 
   // exit: 0 at the centred hero moment, rising to 1 as the band leaves —
   // `entry` maxes out and holds at the centred moment, so it can't drive
@@ -114,14 +119,16 @@ export function HeroBridgeBand() {
   const plateOpacity = useTransform(exit, [0, 1], [1, 0]);
 
   // drive the scrub print from scroll; read the current value on mount so a
-  // mid-page reload lands at the right print state instead of a blank plate
+  // mid-page reload lands at the right print state instead of a blank plate.
+  // Inert on uncurtained widths: transition="none" never wires applyProgress,
+  // so setProgress is a no-op there.
   useEffect(() => {
     if (reduce || useGL) return;
     const d = dither.current;
     if (!d) return;
-    d.setProgress(print.get());
-    return print.on("change", (p) => d.setProgress(p));
-  }, [print, introDone, reduce, useGL]);
+    d.setProgress(entry.get());
+    return entry.on("change", (p) => d.setProgress(p));
+  }, [entry, introDone, reduce, useGL]);
 
   // the site's single cursor signature — internally inert until the colour locks
   useEffect(() => {
@@ -184,7 +191,14 @@ export function HeroBridgeBand() {
           <DitherMedia
             ref={dither}
             mode="resolve"
-            transition="scrub"
+            // Uncurtained (every phone and tablet): "none" short-circuits the
+            // dither engine before it wires its observers or decodes the
+            // source — the canvas is set to opacity 0 and never painted, so
+            // the colour bridge under it is already resolved at first paint,
+            // with no print and no entrance to sit through. It also means zero
+            // canvas work on exactly the low-power devices that land in this
+            // branch. Curtained widths keep the scrub they were designed for.
+            transition={curtained ? "scrub" : "none"}
             src={heroMedia.image}
             video={heroMedia.video}
             alt={heroMedia.alt}
