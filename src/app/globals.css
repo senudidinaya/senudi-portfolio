@@ -12,6 +12,13 @@
   --warm: 141 84 36; /* ochre — 5.47:1 on --bg so small tags stay readable */
   --cool: 58 84 112; /* slate — 6.99:1 on --bg */
   --bridge: 22 101 68; /* pine green, the primary accent — 6.29:1 on --bg */
+
+  /* The page background, captured. `.dark` sets --bg on this same element, so
+     this resolves to whichever palette is live — but unlike --bg it survives
+     .plate-dark, which pins --bg to the night values inside the always-dark
+     scenes. Anything inside such a scene that has to reconcile with the page
+     around it reads this instead of hardcoding a colour. */
+  --page-bg: var(--bg);
 }
 
 .dark {
@@ -127,8 +134,25 @@ html[data-intro-done] .intro-overlay {
   opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-body:has(.admin-theme) .grain {
+body:has(.admin-theme) .grain,
+body:has(.admin-signin) .grain {
   display: none;
+}
+
+/* Sign-in backdrop. The water plate reads through a night-ground scrim in
+   BOTH themes — the same green-black as the dark palette's --bg, not a colour
+   of its own — so one card style stays legible over it either way. 0.72 is
+   the same veil strength the About lane backdrop uses. */
+.signin-scrim {
+  background-color: rgb(17 22 19 / 0.72);
+}
+
+.signin-vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 35%,
+    rgb(17 22 19 / 0.5) 100%
+  );
 }
 
 /* Terminal-print card: hairline frame on bare paper, no fill */
@@ -221,6 +245,70 @@ body:has(.admin-theme) .grain {
   --warm: 212 165 100;
   --cool: 138 164 192;
   --bridge: 104 200 150;
+}
+
+/* Dissolves an always-dark plate's top edge into the page above it, in light
+   theme only. Inside .plate-dark every colour token — including the plate's
+   own `from-bg` top gradient — is pinned to the night palette, so that
+   gradient fades the photo toward 17 22 19: a seamless dissolve when the page
+   is also 17 22 19, and a hard step when the page is cream. This paints the
+   real page colour down over the plate's top edge instead, read from
+   --page-bg so it tracks the token rather than duplicating its value.
+   Alpha-only stops (same colour throughout) keep the ramp free of the grey
+   cast a `to transparent` interpolation would introduce, and the eased tail
+   lands on zero with no slope so there is no band where it ends.
+   Dark theme gets `display: none`: a dark page needs no bridging, the plate
+   already matches it — which is also what makes this provably inert there. */
+.seam-fade-page {
+  background-image: linear-gradient(
+    to bottom,
+    rgb(var(--page-bg) / 1) 0%,
+    rgb(var(--page-bg) / 0.82) 15%,
+    rgb(var(--page-bg) / 0.6) 32%,
+    rgb(var(--page-bg) / 0.38) 50%,
+    rgb(var(--page-bg) / 0.2) 68%,
+    rgb(var(--page-bg) / 0.07) 85%,
+    rgb(var(--page-bg) / 0) 100%
+  );
+}
+.dark .seam-fade-page {
+  display: none;
+}
+
+/* Keeps the fixed chapter rail readable over anything it crosses, without
+   putting a plate behind it. The rail is fixed while the page behind it is
+   not, so at the About and Contact boundaries it spans cream and near-black
+   at the same moment and no single set of colours can be legible on both.
+
+   The halo is painted in the page's own --bg: the very colour the rail is
+   already sitting on wherever the page really is that colour, so it is
+   invisible across the whole body and only does work over the photographic
+   plates. That is also why one declaration covers both themes — dark type
+   gets a cream surround in light theme and light type a near-black one in
+   dark, because --bg flips with the palette. No backdrop, no chrome; the
+   glyph carries its own background with it.
+
+   Three stacked shadows rather than one: the two tight ones build enough
+   density to close the counters in 0.62rem mono at 0.3em tracking, where a
+   single blur reads as grey mush, and the wide one carries the falloff so
+   the result is a surround rather than an outline. */
+.rail-halo {
+  text-shadow:
+    0 0 1px rgb(var(--bg)),
+    0 0 2px rgb(var(--bg)),
+    0 0 4px rgb(var(--bg)),
+    0 0 9px rgb(var(--bg));
+}
+
+/* The ticks and the progress needle are 1px boxes, not glyphs, so they take
+   the same halo through box-shadow. They need it for the same reason the
+   labels do: the active tick is --bridge, which is pine green in light theme
+   and all but vanishes against dark water. */
+.rail-halo-rule {
+  box-shadow:
+    0 0 2px rgb(var(--bg)),
+    0 0 4px rgb(var(--bg)),
+    0 0 8px rgb(var(--bg));
 }
 
 /* Overlay section links: hover/focus hollows the glyphs to a 1px stroke */
