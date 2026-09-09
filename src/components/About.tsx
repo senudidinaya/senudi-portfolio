@@ -69,7 +69,7 @@ export function About({
 
               {lead && (
                 <MotionReveal>
-                  <p className="max-w-3xl font-serif text-2xl font-light leading-snug text-ink sm:text-3xl lg:max-w-xl">
+                  <p className="max-w-3xl font-serif text-lg font-light leading-relaxed text-ink sm:text-xl lg:max-w-xl">
                     {lead}
                   </p>
                 </MotionReveal>
