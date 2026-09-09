@@ -141,10 +141,13 @@ body:has(.admin-signin) .grain {
 
 /* Sign-in backdrop. The water plate reads through a night-ground scrim in
    BOTH themes — the same green-black as the dark palette's --bg, not a colour
-   of its own — so one card style stays legible over it either way. 0.72 is
-   the same veil strength the About lane backdrop uses. */
+   of its own — so one card style stays legible over it either way. Held at
+   0.55 rather than the About lane's 0.72: this clip is nearly flat behind the
+   card (1.24:1 internal contrast at 0.72), and the heavier veil crushed what
+   little water texture there was, leaving the translucent card reading as
+   flat grey. */
 .signin-scrim {
-  background-color: rgb(17 22 19 / 0.72);
+  background-color: rgb(17 22 19 / 0.55);
 }
 
 .signin-vignette {
@@ -160,7 +163,7 @@ body:has(.admin-signin) .grain {
    quiet register without failing AA. Scoped to the sign-in page: --muted is
    correct everywhere it sits on an opaque surface. */
 .admin-signin .eyebrow {
-  color: rgb(var(--ink) / 0.7);
+  color: rgb(var(--ink) / 0.85);
 }
 
 /* Terminal-print card: hairline frame on bare paper, no fill */
