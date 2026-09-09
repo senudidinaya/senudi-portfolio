@@ -34,6 +34,15 @@ const config: Config = {
       maxWidth: {
         content: "68rem",
       },
+      // One radius for every card-shaped box on the public site, and a
+      // tighter one for the chips that sit inside them, so the whole set
+      // stays in step from a single place. Full-bleed bands (the skills
+      // strip, the marquee) and the hairline rows keep square corners —
+      // their edges run off the viewport, so a radius has nothing to sit on.
+      borderRadius: {
+        card: "0.75rem",
+        chip: "0.5rem",
+      },
       keyframes: {
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(12px)" },
