@@ -26,6 +26,20 @@ export function About({
     >
       <LaneBackdrop sectionRef={sectionRef} />
 
+      {/* Light-theme seam softener. Anchored to the section's own top edge,
+          not to the sticky plate's frame, so it travels away with the seam
+          instead of parking at the top of the viewport for the rest of the
+          scene. Absolute, so it adds nothing to the flow and the -mt-[100svh]
+          below still measures against the backdrop. It sits above the plate
+          and below the z-10 content, so it softens the photograph without
+          touching the type. 22svh rather than a pixel count: the distance is
+          a share of the viewport, which is what holds it from 375 to 1920,
+          and it clears the "Who I am" heading at every width. */}
+      <div
+        aria-hidden="true"
+        className="seam-fade-page pointer-events-none absolute inset-x-0 top-0 h-[22svh]"
+      />
+
       <div className="relative z-10 -mt-[100svh]">
         <div className="mx-auto max-w-content px-5 py-16 sm:px-8 sm:py-24">
           <SectionHeading title="Who I am" />
