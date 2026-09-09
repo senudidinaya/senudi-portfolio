@@ -42,7 +42,7 @@ export function FoundationsStrip({ items }: { items: Project[] }) {
           {items.map((f) => (
             <div
               key={f.title}
-              className={`w-[260px] flex-none border border-line p-4 ${
+              className={`w-[260px] flex-none rounded-card border border-line p-4 ${
                 draggable ? "" : "snap-start"
               }`}
             >

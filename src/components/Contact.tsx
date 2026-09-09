@@ -101,7 +101,7 @@ export function Contact({
               {/* form + contact links, panel-treated at lg+ only */}
               <MotionReveal
                 delay={0.12}
-                className="relative bg-bg/85 p-6 sm:p-8 lg:border lg:border-line lg:bg-bg/60 lg:p-8 lg:backdrop-blur-[2px]"
+                className="relative rounded-card bg-bg/85 p-6 sm:p-8 lg:border lg:border-line lg:bg-bg/60 lg:p-8 lg:backdrop-blur-[2px]"
               >
                 {status === "sent" ? (
                   <div className="grid min-h-[18rem] place-items-center text-center">

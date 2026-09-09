@@ -21,7 +21,7 @@ function FoundationsCard({
 }) {
   return (
     <div
-      className={`border p-6 transition-colors duration-300 sm:p-8 ${
+      className={`rounded-card border p-6 transition-colors duration-300 sm:p-8 ${
         active ? "border-ink" : "border-line"
       }`}
     >
@@ -51,7 +51,7 @@ function ProjectCard({
 }) {
   return (
     <article
-      className={`group grid gap-6 border bg-transparent p-6 transition-colors duration-300 hover:bg-surface sm:p-8 lg:grid-cols-[1fr_1.4fr] ${
+      className={`group grid gap-6 rounded-card border bg-transparent p-6 transition-colors duration-300 hover:bg-surface sm:p-8 lg:grid-cols-[1fr_1.4fr] ${
         active ? "border-ink" : "border-line"
       }`}
     >
@@ -68,7 +68,7 @@ function ProjectCard({
         <p className="mt-2 text-sm text-muted">{project.kind}</p>
 
         {project.metric && (
-          <div className="mt-6 inline-flex items-baseline gap-2.5 border border-line px-4 py-3">
+          <div className="mt-6 inline-flex items-baseline gap-2.5 rounded-chip border border-line px-4 py-3">
             <CountUp
               value={project.metric.value}
               className="font-serif text-3xl font-light text-cool"
@@ -121,7 +121,7 @@ function PublicationCard({
   publication: SiteContent["publication"];
 }) {
   return (
-    <div className="terminal-card">
+    <div className="terminal-card rounded-card">
       <div className="double-rule flex items-baseline justify-between border-b border-line px-5 py-3.5 sm:px-6">
         <span className="font-serif text-base font-light uppercase tracking-[0.08em] text-ink">
           Publication

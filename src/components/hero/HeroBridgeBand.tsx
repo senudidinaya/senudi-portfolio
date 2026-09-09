@@ -167,11 +167,15 @@ export function HeroBridgeBand() {
     // than sm because a tablet is the same portrait box at a wider size;
     // 1024+ keeps the viewport-relative height it always had, untouched.
     //
-    // The -mt stays on sm: it sets the plate's top edge, not its height, so
-    // moving the aspect reset to lg leaves tablet CTA clearance alone.
+    // The -mt sets the plate's top edge, not its height, so it is tuned per
+    // breakpoint against the CTA row rather than the aspect reset. sm's -24
+    // lands the plate's top edge just above the links at desktop widths,
+    // putting the photograph behind them; lg pulls that back to -8 so the
+    // plate still meets the column and keeps its crest above the fold, but
+    // its edge clears the CTAs the way mt-0 does below sm.
     <div
       ref={bandRef}
-      className="relative mt-0 aspect-[2.6] w-full overflow-hidden sm:-mt-24 lg:aspect-auto lg:h-[64svh]"
+      className="relative mt-0 aspect-[2.6] w-full overflow-hidden sm:-mt-24 lg:-mt-8 lg:aspect-auto lg:h-[64svh]"
     >
       {/* oversize media layer — parallax by translate only */}
       <motion.div
