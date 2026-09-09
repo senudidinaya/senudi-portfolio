@@ -65,7 +65,7 @@ export const defaultContent: SiteContent = {
     github: "https://github.com/senudidinaya",
     resumeFile: "/Senudi_Rupasinghe_CV.pdf",
     tagline:
-      "I turn what the business needs into what engineering ships — across the frontend, the backend, and the research behind it.",
+      "I turn what the business needs into what engineering ships: across the frontend, the backend, and the research behind it.",
   },
   metrics: [
     { value: "97.8%", label: "screening-model accuracy" },
