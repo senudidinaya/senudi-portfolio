@@ -10,7 +10,6 @@ import { links } from "./Nav";
 // tracks overall scroll; the active chapter comes from an IntersectionObserver.
 // Mounted in page.tsx only — the root layout also wraps /admin, which gets no rail.
 const chapters = [{ href: "#top", label: "Prologue" }, ...links];
-const DARK_SCENES = new Set(["about", "contact"]);
 
 export function ChapterRail() {
   const [active, setActive] = useState("top");
@@ -49,18 +48,20 @@ export function ChapterRail() {
     else el.scrollIntoView({ behavior: "smooth" });
   };
 
-  // About and Contact are always-dark full-page scenes: the theme-driven
-  // text/accent colors that work everywhere else can resolve near-invisible
-  // over them in light theme, so these chapters pin to the dark-palette
-  // values instead.
-  const onScene = DARK_SCENES.has(active);
-
   return (
     <nav
       aria-label="Chapters"
       className="fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 lg:block"
     >
       <div className="relative flex flex-col items-end gap-3 pr-4">
+        {/* The rail crosses the cream page and the always-dark About/Contact
+            plates at the same time, so its contrast cannot come from the
+            background — it comes with the type, as a halo in the page's own
+            --bg. See .rail-halo. This replaced a DARK_SCENES flag that chose
+            one of two palettes from the active chapter: one value for five
+            items sitting at five different heights, which is unwinnable the
+            moment a boundary falls between them, and it put the active item
+            on the boundary itself. */}
         {chapters.map((c) => {
           const on = active === c.href.slice(1);
           return (
@@ -72,24 +73,16 @@ export function ChapterRail() {
               className="group flex items-center gap-2.5"
             >
               <span
-                className={`font-mono text-[0.62rem] uppercase tracking-[0.3em] transition-colors duration-300 ${
-                  on
-                    ? onScene
-                      ? "text-[rgb(235,233,224)]"
-                      : "text-ink"
-                    : onScene
-                    ? "text-[rgb(158,166,156)]/50"
-                    : "text-muted/50 group-hover:text-muted"
+                className={`rail-halo font-mono text-[0.62rem] uppercase tracking-[0.3em] transition-colors duration-300 ${
+                  on ? "text-ink" : "text-muted/50 group-hover:text-muted"
                 }`}
               >
                 {c.label}
               </span>
               <span
                 aria-hidden="true"
-                className={`h-px transition-all duration-300 ${
-                  on
-                    ? `w-6 ${onScene ? "bg-[rgb(104,200,150)]" : "bg-bridge"}`
-                    : "w-3 bg-line group-hover:w-4"
+                className={`rail-halo-rule h-px transition-all duration-300 ${
+                  on ? "w-6 bg-bridge" : "w-3 bg-line group-hover:w-4"
                 }`}
               />
             </a>
@@ -97,14 +90,15 @@ export function ChapterRail() {
         })}
 
         {/* progress needle down the rail's right edge */}
-        <span aria-hidden="true" className="absolute right-0 top-0 h-full w-px bg-line" />
+        <span
+          aria-hidden="true"
+          className="rail-halo-rule absolute right-0 top-0 h-full w-px bg-line"
+        />
         {!reduce && (
           <motion.span
             aria-hidden="true"
             style={{ scaleY: scrollYProgress }}
-            className={`absolute right-0 top-0 h-full w-px origin-top ${
-              onScene ? "bg-[rgb(104,200,150)]" : "bg-bridge"
-            }`}
+            className="rail-halo-rule absolute right-0 top-0 h-full w-px origin-top bg-bridge"
           />
         )}
       </div>
