@@ -88,12 +88,14 @@ export function LoginForm() {
 
       <form
         onSubmit={onSubmit}
-        className="relative z-10 w-full max-w-sm rounded-2xl border border-line bg-surface/[0.94] p-8 shadow-2xl shadow-black/40 backdrop-blur-md"
+        className="relative z-10 w-full max-w-sm rounded-2xl border border-line bg-surface/[0.82] p-8 shadow-2xl shadow-black/40 backdrop-blur-lg"
       >
         <h1 className="font-serif text-2xl font-light tracking-tight text-ink">
           Admin
         </h1>
-        <p className="mt-1.5 text-sm text-muted">Sign in to edit the site.</p>
+        {/* ink/70 rather than the --muted token: at 0.82 the card lets enough
+            water through that mid-grey muted no longer clears AA on it. */}
+        <p className="mt-1.5 text-sm text-ink/70">Sign in to edit the site.</p>
 
         <label className="mt-6 block">
           <span className="eyebrow">Password</span>

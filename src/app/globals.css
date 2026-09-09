@@ -155,6 +155,14 @@ body:has(.admin-signin) .grain {
   );
 }
 
+/* The card is translucent enough that the --muted token drops under 4.5:1 on
+   it in light theme. Same neutral, a shade stronger, so the label keeps its
+   quiet register without failing AA. Scoped to the sign-in page: --muted is
+   correct everywhere it sits on an opaque surface. */
+.admin-signin .eyebrow {
+  color: rgb(var(--ink) / 0.7);
+}
+
 /* Terminal-print card: hairline frame on bare paper, no fill */
 .terminal-card {
   border: 1px solid rgb(var(--line));
