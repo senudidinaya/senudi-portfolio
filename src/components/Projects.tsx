@@ -6,6 +6,7 @@ import { MotionReveal } from "./motion/MotionReveal";
 import { CountUp } from "./motion/CountUp";
 import { Timeline, TimelineItem } from "./work/Timeline";
 import { FoundationsStrip } from "./work/FoundationsStrip";
+import { WorkBackdrop } from "./work/WorkBackdrop";
 
 // Flagship cards render in the order they appear in the content data, which is
 // controlled entirely from the admin panel (the ↑/↓ reorder buttons). No code
@@ -21,7 +22,7 @@ function FoundationsCard({
 }) {
   return (
     <div
-      className={`rounded-card border p-6 transition-colors duration-300 sm:p-8 ${
+      className={`rounded-card border bg-bg/80 p-6 backdrop-blur-[2px] transition-colors duration-300 sm:p-8 ${
         active ? "border-ink" : "border-line"
       }`}
     >
@@ -51,7 +52,7 @@ function ProjectCard({
 }) {
   return (
     <article
-      className={`group grid gap-6 rounded-card border bg-transparent p-6 transition-colors duration-300 hover:bg-surface sm:p-8 lg:grid-cols-[1fr_1.4fr] ${
+      className={`group grid gap-6 rounded-card border bg-bg/80 p-6 backdrop-blur-[2px] transition-colors duration-300 hover:bg-surface sm:p-8 lg:grid-cols-[1fr_1.4fr] ${
         active ? "border-ink" : "border-line"
       }`}
     >
@@ -121,7 +122,7 @@ function PublicationCard({
   publication: SiteContent["publication"];
 }) {
   return (
-    <div className="terminal-card rounded-card">
+    <div className="terminal-card rounded-card !bg-bg/80 backdrop-blur-[2px]">
       <div className="double-rule flex items-baseline justify-between border-b border-line px-5 py-3.5 sm:px-6">
         <span className="font-serif text-base font-light uppercase tracking-[0.08em] text-ink">
           Publication
@@ -173,36 +174,61 @@ export function Projects({
   const flagships = projects.filter((p) => !p.kind.includes(".NET foundation"));
 
   return (
-    <section id="work" className="px-5 py-16 sm:px-8 sm:py-24">
-      <div className="mx-auto max-w-content">
-        <SectionHeading title="How I've grown" />
+    // Always-dark plate, the same construction as About and Contact:
+    // `plate-dark` pins the night palette regardless of the reader's theme, so
+    // the type resolves against the photograph rather than against the page.
+    // overflow-clip (not overflow-hidden) leaves the sticky backdrop's scroll
+    // container intact. min-h-[100svh] guarantees the plate is at least as
+    // tall as the frame the -mt-[100svh] below measures against, even if the
+    // admin panel ever leaves the timeline nearly empty.
+    <section
+      id="work"
+      className="relative w-full overflow-clip plate-dark bg-bg min-h-[100svh]"
+    >
+      <WorkBackdrop />
 
-        <MotionReveal>
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted">
-            Newest first &mdash; from what I&rsquo;m building now, back to the
-            self-taught .NET builds where it started.
-          </p>
-        </MotionReveal>
+      {/* Light-theme seam softener — paints the real page colour down over the
+          plate's top edge, which is otherwise a hard cream-to-black step.
+          Inert in dark theme (the class is display:none there). Anchored to
+          the section's top so it travels away with the seam; absolute, so it
+          adds nothing to the flow and the -mt-[100svh] still measures against
+          the backdrop. */}
+      <div
+        aria-hidden="true"
+        className="seam-fade-page pointer-events-none absolute inset-x-0 top-0 h-[22svh]"
+      />
 
-        <Timeline>
-          {flagships.map((project, i) => (
-            <TimelineItem
-              key={project.title}
-              index={i}
-              dotClass={dotPalette[i % dotPalette.length]}
-            >
-              {(active) => <ProjectCard project={project} index={i + 1} active={active} />}
+      <div className="relative z-10 -mt-[100svh] px-5 py-16 sm:px-8 sm:py-24">
+        <div className="mx-auto max-w-content">
+          <SectionHeading title="How I've grown" />
+
+          <MotionReveal>
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted">
+              Newest first &mdash; from what I&rsquo;m building now, back to the
+              self-taught .NET builds where it started.
+            </p>
+          </MotionReveal>
+
+          <Timeline>
+            {flagships.map((project, i) => (
+              <TimelineItem
+                key={project.title}
+                index={i}
+                dotClass={dotPalette[i % dotPalette.length]}
+              >
+                {(active) => <ProjectCard project={project} index={i + 1} active={active} />}
+              </TimelineItem>
+            ))}
+
+            <TimelineItem index={flagships.length} dotClass="bg-muted" origin>
+              {(active) => <FoundationsCard foundations={foundations} active={active} />}
             </TimelineItem>
-          ))}
+          </Timeline>
 
-          <TimelineItem index={flagships.length} dotClass="bg-muted" origin>
-            {(active) => <FoundationsCard foundations={foundations} active={active} />}
-          </TimelineItem>
-        </Timeline>
-
-        <MotionReveal className="mt-16">
-          <PublicationCard publication={publication} />
-        </MotionReveal>
+          <MotionReveal className="mt-16">
+            <PublicationCard publication={publication} />
+          </MotionReveal>
+        </div>
       </div>
     </section>
   );

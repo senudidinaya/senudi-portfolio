@@ -83,3 +83,15 @@ export const facets: FacetMedia[] = [
     alt: "Stylised illustration — painting at an easel, seen from behind",
   },
 ];
+
+// The work section backdrop (the desk plate behind "How I've grown"). A real
+// photograph, not a study: the editor open on a JWT service, lit only by its
+// own screen. It sits under an always-dark plate, so the asset's near-black
+// field is the point — the scrim only has to hold the glow back off the type.
+// No `video`; the section is long and text-dense, and a moving plate under a
+// reading column fights the copy.
+export const workBackdrop: MediaAsset = {
+  image: "/media/work-desk.jpg",
+  video: null,
+  alt: "A hand reaching toward a laptop screen in a dark room, the editor open on Java source lit only by its own glow",
+};
